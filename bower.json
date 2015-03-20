@@ -1,0 +1,25 @@
+{
+  "name": "googly-mapulous",
+  "version": "1.0.0",
+  "authors": [
+    "Tim Shaw <tim.shaw@noblestudios.com>"
+  ],
+  "description": "A set of tools for building google maps functionality we tend to do a lot (markers, labels, hover/click content, clustering, overlays, etc.\"",
+  "main": "./dist/googly-mapulous.min.js",
+  "keywords": [
+    "google",
+    "maps",
+    "gmaps",
+    "tools"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "tmp",
+    ".gitignore"
+  ]
+}

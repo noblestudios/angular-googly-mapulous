@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width" charset="utf-8">
+    <title>Angular Googly Mapulous</title>
+    <link rel="stylesheet" href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css">
+    <link rel="stylesheet" href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css">
+    <link rel="stylesheet" href="http://getbootstrap.com/2.3.2/assets/css/docs.css">
+    <style>
+      body > .navbar .brand {
+        float:left;
+        text-shadow: rgba(255, 255, 255, 0.0980392) 0px 1px 0px, rgba(255, 255, 255, 0.4) 0px 0px 30px;
+        color: white;
+        margin-left:0px;
+        font-weight:normal;
+      }
+      
+      .bs-docs-sidenav.affix {
+        box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+      }
+      
+      .bs-docs-sidenav i{
+        width: 8px;
+        height: 8px;
+        padding: 0px;
+        margin: 0px;
+        display: inline-block;
+        margin-right:0.5em;
+      }
+      
+      .bs-docs-sidenav > li > a {
+          word-wrap: break-word;
+      }
+      
+      .bs-docs-sidenav > li:first-child > a {
+        border-top-right-radius: 6px;
+        border-top-left-radius: 6px;
+      }
+      
+      code[class*="language-"],pre[class*="language-"]{color:black;text-shadow:0 1px white;font-family:Consolas,Monaco,'Andale Mono',monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*="language-"]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*="language-"],pre[class*="language-"]{background:#f5f2f0}:not(pre)>code[class*="language-"]{padding:.1em;border-radius:.3em}.token.comment,.token.prolog,.token.doctype,.token.cdata{color:slategray}.token.punctuation{color:#999}.namespace{opacity:.7}.token.property,.token.tag,.token.boolean,.token.number{color:#905}.token.selector,.token.attr-name,.token.string{color:#690}.token.operator,.token.entity,.token.url,.language-css .token.string,.style .token.string{color:#a67f59;background:hsla(0,0%,100%,.5)}.token.atrule,.token.attr-value,.token.keyword{color:#07a}.token.regex,.token.important{color:#e90}.token.important{font-weight:bold}.token.entity{cursor:help}
+      div.description {margin: 14px 0; padding-top: 14px; border-bottom:1px solid #eee; }
+      .tags {}
+      .ctx-type {
+        display:inline-block;
+        margin-right:0.5em;
+        //- float:right; margin-top:8px
+      }
+      
+      footer iframe{vertical-align:middle;}
+      
+    </style>
+  </head>
+  <body data-spy="scroll" data-target=".scrollspy">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container"><a class="brand">Doxx</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav pull-right sponsored"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <header id="overview" class="jumbotron subhead">
+      <div class="container">
+        <h1>Angular Googly Mapulous</h1>
+        <p class="lead"></p>
+      </div>
+    </header>
+    <div class="container">
+      <div class="row">
+        <div class="span3 bs-docs-sidebar">
+          <ul class="nav nav-list bs-docs-sidenav affix-top">
+            <li><a href="../index.html">Main</a></li>
+            <li><a href="../googleMaps.directive.js.html">googleMaps.directive.js</a></li>
+            <li><a href="../googleMaps.module.js.html">googleMaps.module.js</a></li>
+            <li><a href="../googleMaps.provider.js.html">googleMaps.provider.js</a></li>
+            <li class="active"><a href="../lib/Cluster.js.html">lib/Cluster.js</a></li>
+            <li><a href="../lib/GoogleMap.js.html">lib/GoogleMap.js</a></li>
+            <li><a href="../lib/Marker.js.html">lib/Marker.js</a></li>
+            <li><a href="../lib/utility.js.html">lib/utility.js</a></li>
+          </ul>
+          <div class="scrollspy">
+            <ul class="nav nav-list bs-docs-sidenav affix-top">
+              <li><a href="#Cluster"><i class="alert alert-info"></i><span>Cluster</span></a>
+              </li>
+              <li><a href="#getMarkers"><i class="alert alert-info"></i><span>getMarkers</span></a>
+              </li>
+              <li><a href="#getActiveMarkers"><i class="alert alert-info"></i><span>getActiveMarkers</span></a>
+              </li>
+              <li><a href="#setMap"><i class="alert alert-info"></i><span>setMap</span></a>
+              </li>
+              <li><a href="#clusterMarkers"><i class="alert alert-info"></i><span>clusterMarkers</span></a>
+              </li>
+              <li><a href="#addMarkers"><i class="alert alert-info"></i><span>addMarkers</span></a>
+              </li>
+              <li><a href="#clearMarkers"><i class="alert alert-info"></i><span>clearMarkers</span></a>
+              </li>
+              <li><a href="#displayClusterMarkers"><i class="alert alert-info"></i><span>displayClusterMarkers</span></a>
+              </li>
+              <li><a href="#group"><i class="alert alert-info"></i><span>group</span></a>
+              </li>
+              <li><a href="#findMarkerGroups"><i class="alert alert-info"></i><span>findMarkerGroups</span></a>
+              </li>
+              <li><a href="#findMarkerNeighbors"><i class="alert alert-info"></i><span>findMarkerNeighbors</span></a>
+              </li>
+              <li><a href="#getGroupingDistance"><i class="alert alert-info"></i><span>getGroupingDistance</span></a>
+              </li>
+              <li><a href="#setClusterZoomMapping"><i class="alert alert-info"></i><span>setClusterZoomMapping</span></a>
+              </li>
+              <li><a href="#config"><i class="alert alert-success"></i><span>config</span></a>
+              </li>
+              <li><a href="#state"><i class="alert alert-success"></i><span>state</span></a>
+              </li>
+              <li><a href="#errors"><i class="alert alert-success"></i><span>errors</span></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="span9">
+          <section id="Cluster">
+            <h1>Cluster</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">function</div><span>Cluster()</span> -><span>Object</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>markers</td>
+                <td>Array</td>
+                <td><p>Array of Marker objects to assign to cluster</p></td>
+              </tr>
+              <tr>
+                <td>map</td>
+                <td>Object</td>
+                <td><p>GoogleMap object to add cluster to (optional)</p></td>
+              </tr>
+              <tr>
+                <td>icon</td>
+                <td>String</td>
+                <td><p>Cluster icon (png or svg, optional). Default icon will be used if this is not passed.</p></td>
+              </tr>
+              <tr>
+                <td>width</td>
+                <td>Integer</td>
+                <td><p>Cluster icon width (optional)</p></td>
+              </tr>
+              <tr>
+                <td>height</td>
+                <td>Integer</td>
+                <td><p>Cluster icon height (optional)</p></td>
+              </tr>
+              <tr>
+                <td>label</td>
+                <td>String</td>
+                <td><p>Text or HTML to use as marker label (optional)</p></td>
+              </tr>
+              <tr>
+                <td>data</td>
+                <td>Mixed</td>
+                <td><p>Additional data to save with Cluster object</p></td>
+              </tr>
+              <tr>
+                <td>return</td>
+                <td>Object</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Create a new cluster in the specified map with the specified master list<br />of markers.</p> </div>
+          <pre><code class="language-javascript">var Cluster = function ( markers, map, icon, width, height, options, label, data ) {
+  if ( markers &amp;&amp; markers.length &amp;&amp; google.maps.geometry ) {
+    // Make sure this has a unique copy of the state object
+    this.state = JSON.parse(JSON.stringify( this.state ));
+
+    // Update internal state with passed params
+    this.state.markers = markers;
+    this.state.icon    = icon;
+    this.state.width   = width;
+    this.state.height  = height,
+    this.state.options = options;
+    this.state.label   = label;
+    this.state.data    = data;
+
+    // If map was passed, attach to map immediately and start clustering
+    if ( map ) { this.setMap( map ); }
+
+    // And back we go
+    return this;
+  } else {
+    this.errors.init( markers );
+  }
+
+  // Something didn't go right
+  return null;
+};</code></pre>
+          <section id="getMarkers">
+            <h1>getMarkers</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getMarkers()</span> -><span>Array</span>
+            </p>
+          </section>
+          <div class="description"><p>Retrieve all markers currently in the cluster (displayed or not).</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.getMarkers = function () {
+  return this.state.markers;
+};</code></pre>
+          <section id="getActiveMarkers">
+            <h1>getActiveMarkers</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getActiveMarkers()</span> -><span>Array</span>
+            </p>
+          </section>
+          <div class="description"><p>Retrieve currently-displayed markers in cluster.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.getActiveMarkers = function () {
+  return this.state.currentMarkers;
+};</code></pre>
+          <section id="setMap">
+            <h1>setMap</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.setMap()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>map</td>
+                <td>Object</td>
+                <td><p>GoogleMap object to attach Cluster to</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Set active map for Cluster.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.setMap = function ( map ) {
+  if ( map ) {
+    // Set map internally
+    this.state.map = map;
+
+    // Bind clustering to map zoom event
+    map.addEvent( 'zoom_changed', debounce(( function ( event ) {
+      this.clusterMarkers();
+    }).bind( this ), 150 ));
+
+    // And start clustering immediately
+    this.clusterMarkers();
+  } else {
+    console.error( 'Invalid map object passed to Cluster.setMap' );
+  }
+};</code></pre>
+          <section id="clusterMarkers">
+            <h1>clusterMarkers</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.clusterMarkers()</span>
+            </p>
+          </section>
+          <div class="description"><p>Run a single round of marker clustering.  This will group markers based on<br />distance, build appropriate map markers for result and update the map with<br />finished markers.  Will do nothing if map is not set already.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.clusterMarkers = function () {
+  if ( this.state.map ) {
+    // First clear existing list of markers
+    this.clearMarkers();
+
+    // Then group markers
+    var groups = this.group();
+
+    // Process groups of markers
+    if ( groups &amp;&amp; groups.length ) {
+      groups.forEach( (function ( group ) {
+        if ( group.markers.length &gt; 1 ) {
+          // Build a new marker for the cluster
+          var clusterMarker = new Marker(
+            group.centroid.lat,
+            group.centroid.lng,
+            null,
+            this.state.icon,
+            this.state.width,
+            this.state.height,
+            this.state.options,
+            this.state.label,
+            this.state.data
+          );
+
+          // Save reference to markers and marker data with object as well
+          clusterMarker.markerData = group.data;
+          clusterMarker.markers    = group.markers;
+
+          // And push the new cluster marker
+          this.state.currentMarkers.push( clusterMarker );
+        } else {
+          // Well this is easy, just use stock marker
+          this.state.currentMarkers.push( group.markers[ 0 ] );
+        }
+      }).bind( this ));
+
+      // Now all the markers are built, place them on the map
+      this.displayClusterMarkers();
+    }
+  } else {
+    console.error( 'Map must be set before calling Cluster.clusterMarkers' );
+  }
+};</code></pre>
+          <section id="addMarkers">
+            <h1>addMarkers</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.addMarkers()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>marker</td>
+                <td>Mixed</td>
+                <td><p>Constructed Marker object or array of Markers</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Add constructed Marker object(s) to the Cluster.  Will trigger cluster<br />update when done (so generally it&#39;s better to pass arrays of new markers<br />rather than individual ones).</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.addMarkers = function ( markers ) {
+  if ( markers ) {
+    if ( markers.length ) {
+      markers.forEach( (function ( marker ) {
+        // Update bookkeeping
+        this.state.markers.push( marker );
+      }).bind( this ));
+    } else {
+      // Update bookkeeping
+      this.state.markers.push( markers );
+    }
+
+    // Update clustering with new markers
+    this.clusterMarkers();
+  } else {
+    console.error( 'Invalid Marker object/array passed to GoogleMap.addMarkers' );
+  }
+};</code></pre>
+          <section id="clearMarkers">
+            <h1>clearMarkers</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.clearMarkers()</span>
+            </p>
+          </section>
+          <div class="description"><p>Wipe all markers currently in the cluster.  Does not delete the master<br />list of markers, only the markers currently displayed on the map.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.clearMarkers = function () {
+  if (
+    this.state.map &amp;&amp;
+    this.state.currentMarkers &amp;&amp;
+    this.state.currentMarkers.length
+  ) {
+    // Remove from the map
+    this.state.map.removeMarkers( this.state.currentMarkers );
+
+    // Then empty the currentMarkers array
+    this.state.currentMarkers = [];
+  }
+};</code></pre>
+          <section id="displayClusterMarkers">
+            <h1>displayClusterMarkers</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.displayClusterMarkers()</span>
+            </p>
+          </section>
+          <div class="description"><p>Show the current list of cluster markers.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.displayClusterMarkers = function () {
+  if (
+    this.state.map &amp;&amp;
+    this.state.currentMarkers &amp;&amp;
+    this.state.currentMarkers.length
+  ) {
+    this.state.map.addMarkers( this.state.currentMarkers );
+  }
+};</code></pre>
+          <section id="group">
+            <h1>group</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.group()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>markers</td>
+                <td>Array</td>
+                <td><p>Array of Marker objects to cluster (optional)</p></td>
+              </tr>
+              <tr>
+                <td>distance</td>
+                <td>Integer</td>
+                <td><p>Grouping distance (meters)</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Group passed Marker objects based on passed distance.  Can be passed<br />markers and distance or will attempt to reference internal markers/map<br />zoom level for distance.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.group = function ( markers, distance ) {
+  var markers  = markers || this.state.markers;
+  var distance = distance || this.getGroupingDistance();
+
+  if ( markers &amp;&amp; markers.length &amp;&amp; distance ) {
+    // Create scratch list of markers (working copy)
+    var grouped = [];
+    var scratch = markers.slice();
+
+    // Find groups of markers
+    var grouped = this.findMarkerGroups( distance, scratch, grouped );
+
+    // Take raw marker groups, find the centroid and assign
+    // to internal state array.  Also save property info if it
+    // exists in the marker
+    if ( grouped.length ) {
+      var formattedGroups = [];
+
+      grouped.forEach( function ( group ) {
+        var formatted = { markers: group, data: [] };
+
+        // Find the centroid
+        if ( group.length ) {
+          formatted.centroid = { lat: 0, lng: 0 };
+          group.forEach( function ( marker ) {
+            formatted.centroid.lat += marker.state.marker.getPosition().lat();
+            formatted.centroid.lng += marker.state.marker.getPosition().lng();
+
+            // Save marker data if it exists
+            if ( marker.state.data ) { formatted.data.push( marker.state.data ) };
+          });
+
+          formatted.centroid.lat /= group.length;
+          formatted.centroid.lng /= group.length;
+        }
+
+        formattedGroups.push( formatted );
+      });
+
+      // And return the groups
+      return formattedGroups;
+    }
+
+    // If we got this far, just return nothing (there we not groups)
+    return null;
+  } else {
+    this.errors.group( markers, distance );
+  }
+};</code></pre>
+          <section id="findMarkerGroups">
+            <h1>findMarkerGroups</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.findMarkerGroups()</span> -><span>Array</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>distance</td>
+                <td>Integer</td>
+                <td><p>Distance to group markers under</p></td>
+              </tr>
+              <tr>
+                <td>scratch</td>
+                <td>Array</td>
+                <td><p>Scratch list of markers to work from</p></td>
+              </tr>
+              <tr>
+                <td>grouped</td>
+                <td>Array</td>
+                <td><p>Array of grouped markers</p></td>
+              </tr>
+              <tr>
+                <td>return</td>
+                <td>Array</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Take master list of markers and recursively group them based on<br />distance.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.findMarkerGroups = function ( distance, scratch, grouped ) {
+  var group = this.findMarkerNeighbors( scratch.pop(), distance, scratch );
+
+  // Save the new group
+  grouped.push( group );
+
+  // And call this again if there are still &gt; 1 members in scratch
+  // (need at least a marker and a neighbor to compare it with)
+  if ( scratch.length &gt; 1 ) {
+    this.findMarkerGroups( distance, scratch, grouped );
+  } else if ( scratch.length == 1 ) {
+    // Guess there's only a group of 1 left.  Aww, forever alone. =(
+    grouped.push([ scratch.pop() ]);
+  }
+
+  // All done, back we go
+  return grouped;
+};</code></pre>
+          <section id="findMarkerNeighbors">
+            <h1>findMarkerNeighbors</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.findMarkerNeighbors()</span> -><span>Array</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>marker</td>
+                <td>Object</td>
+                <td><p>Marker object</p></td>
+              </tr>
+              <tr>
+                <td>distance</td>
+                <td>Integer</td>
+                <td><p>Distance to group under (in meters)</p></td>
+              </tr>
+              <tr>
+                <td>scratch</td>
+                <td>Array</td>
+                <td><p>Scratch list of Marker objects (NOT the actual master list)</p></td>
+              </tr>
+              <tr>
+                <td>return</td>
+                <td>Array</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Take passed single marker and find neighbors within range in scratch list<br />of markers.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.findMarkerNeighbors = function ( marker, distance, scratch ) {
+  var group = [];
+
+  // Push the marker itself on as the first member of the group
+  group.push( marker );
+
+  // Iterate through the list checking distances as we go and grouping
+  // if item is within specified distance of original marker.  This
+  // iterates backwards so splicing out array entries doesn't affect
+  // higher indices (the array will reindex every time a splice is done)
+  for ( var i = scratch.length; i--; i &gt; 0 ) {
+    var distanceBetween = google.maps.geometry.spherical.computeDistanceBetween(
+      marker.state.marker.getPosition(),
+      scratch[i].state.marker.getPosition()
+    );
+    if ( distanceBetween &lt;= distance ) {
+      group.push( scratch.splice( i, 1 )[0] );
+    }
+  }
+
+  // Return the finished group
+  return group;
+};</code></pre>
+          <section id="getGroupingDistance">
+            <h1>getGroupingDistance</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getGroupingDistance()</span> -><span>Integer</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>zoom</td>
+                <td>Integer</td>
+                <td><p>Zoom level (if not passed will reference internal map zoom instead)</p></td>
+              </tr>
+              <tr>
+                <td>return</td>
+                <td>Integer</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Figure out what grouping distance should be used based on values<br />contained in the cluster config.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.getGroupingDistance = function ( zoom ) {
+  var mapZoom       = zoom || this.state.map.state.map.getZoom();
+  var zoomMapping   = this.config.clusterMapping;
+  var groupDistance = zoomMapping[ mapZoom ] ? zoomMapping[ mapZoom ] : zoomMapping.default;
+
+  return groupDistance ? groupDistance : 0;
+};</code></pre>
+          <section id="setClusterZoomMapping">
+            <h1>setClusterZoomMapping</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.setClusterZoomMapping()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>mapping</td>
+                <td>Object</td>
+                <td><p>Mapping object following format in description</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Set the zoom mapping for the cluster.  This is the clustering distance in<br />meters for each zoom level.  Note that lower zoom numbers are zoomed out.<br />Ex. config:<br />{<br />  8: 6000,<br />  9: 4500,<br />  10: 3000,<br />  11: 2500,<br />  12: 1500,<br />  13: 1500,<br />  14: 1000,<br />  15: 800, // Past level 15 markers aren&#39;t grouped<br />  default: 10000 // For really zoomed out levels, &gt; 8<br />}</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.setClusterZoomMapping = function ( mapping ) {
+  if ( mapping ) {
+    this.config.clusterMapping = mapping;
+  } else {
+    console.error( 'Valid zoom mapping object must be passed to Cluster.setClusterZoomMapping' );
+  }
+};</code></pre>
+          <section id="config">
+            <h1>config</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-success radius ctx-type">property</div><span>Cluster.prototype.config</span>
+            </p>
+          </section>
+          <div class="description"><p>Clustering config options.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.config = {
+  clusterMapping: {
+    8: 6000,
+    9: 4500,
+    10: 3000,
+    11: 2500,
+    12: 1500,
+    13: 1500,
+    14: 1000,
+    15: 800, // Past level 15 markers aren't grouped
+    default: 10000 // For really zoomed out levels, &gt; 8
+  }
+};</code></pre>
+          <section id="state">
+            <h1>state</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-success radius ctx-type">property</div><span>Cluster.prototype.state</span>
+            </p>
+          </section>
+          <div class="description"><p>Internal state of cluster (current markers, current map, etc.).</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.state = {
+  map: null,
+  markers: [],
+  currentMarkers: [],
+  icon: null,
+  width: null,
+  height: null,
+  options: null,
+  label: null,
+  data: null
+};</code></pre>
+          <section id="errors">
+            <h1>errors</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-success radius ctx-type">property</div><span>Cluster.prototype.errors</span>
+            </p>
+          </section>
+          <div class="description"><p>Error handling.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.errors = {
+  init: function ( markers ) {
+    if ( ! google.maps.geometry ) {
+      console.error( 'Geometry library for Google Maps API not loaded.  Clustering will not be available.  Example include URL: //maps.googleapis.com/maps/api/js?key=key&amp;sensor=false&amp;libraries=geometry' );
+    }
+    if ( ! markers || ! markers.length ) {
+      console.error( 'Valid array of Marker objects must be passed to Cluster object' );
+    }
+  },
+  group: function ( markers, distance ) {
+    if ( ! markers || ! markers.length ) {
+      console.error( 'Empty marker list passed to Cluster.group' );
+    }
+    if ( ! distance ) {
+      console.error( 'Invalid distance passed to Cluster.group' );
+    }
+  }
+};</code></pre>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="container">
+        <p>Documentation generated with <a href="https://github.com/FGRibreau/doxx">Doxx </a> created by <a href="https://twitter.com/FGRibreau" data-show-count="false" class="twitter-follow-button">Francois-Guillaume Ribreau </a></p>
+        <p>Doxx is sponsored by <a href="http://bringr.net/?btt" title="Outil d'analyse des réseaux sociaux" class="bringr">Bringr </a> and <a href="https://redsmin.com/?btt" title="Full Redis GUI" class="redsmin">Redsmin</a></p>
+        <p>Theme borrowed from Twitter Bootstrap</p>
+      </div>
+    </footer>
+    <script src="http://platform.twitter.com/widgets.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+    <script src="http://leaverou.github.com/prefixfree/prefixfree.js"></script>
+    <script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-transition.js"></script>
+    <script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-scrollspy.js"></script>
+    <script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-dropdown.js"></script>
+    <script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-collapse.js"></script>
+    <script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-affix.js"></script>
+    <script>
+      /**
+       * Prism: Lightweight, robust, elegant syntax highlighting
+       * MIT license http://www.opensource.org/licenses/mit-license.php/
+       * @author Lea Verou http://lea.verou.me
+       */(function(){var e=/\blang(?:uage)?-(?!\*)(\w+)\b/i,t=self.Prism={util:{type:function(e){return Object.prototype.toString.call(e).match(/\[object (\w+)\]/)[1]},clone:function(e){var n=t.util.type(e);switch(n){case"Object":var r={};for(var i in e)e.hasOwnProperty(i)&&(r[i]=t.util.clone(e[i]));return r;case"Array":return e.slice()}return e}},languages:{extend:function(e,n){var r=t.util.clone(t.languages[e]);for(var i in n)r[i]=n[i];return r},insertBefore:function(e,n,r,i){i=i||t.languages;var s=i[e],o={};for(var u in s)if(s.hasOwnProperty(u)){if(u==n)for(var a in r)r.hasOwnProperty(a)&&(o[a]=r[a]);o[u]=s[u]}return i[e]=o},DFS:function(e,n){for(var r in e){n.call(e,r,e[r]);t.util.type(e)==="Object"&&t.languages.DFS(e[r],n)}}},highlightAll:function(e,n){var r=document.querySelectorAll('code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code');for(var i=0,s;s=r[i++];)t.highlightElement(s,e===!0,n)},highlightElement:function(r,i,s){var o,u,a=r;while(a&&!e.test(a.className))a=a.parentNode;if(a){o=(a.className.match(e)||[,""])[1];u=t.languages[o]}if(!u)return;r.className=r.className.replace(e,"").replace(/\s+/g," ")+" language-"+o;a=r.parentNode;/pre/i.test(a.nodeName)&&(a.className=a.className.replace(e,"").replace(/\s+/g," ")+" language-"+o);var f=r.textContent;if(!f)return;f=f.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\u00a0/g," ");var l={element:r,language:o,grammar:u,code:f};t.hooks.run("before-highlight",l);if(i&&self.Worker){var c=new Worker(t.filename);c.onmessage=function(e){l.highlightedCode=n.stringify(JSON.parse(e.data));l.element.innerHTML=l.highlightedCode;s&&s.call(l.element);t.hooks.run("after-highlight",l)};c.postMessage(JSON.stringify({language:l.language,code:l.code}))}else{l.highlightedCode=t.highlight(l.code,l.grammar);l.element.innerHTML=l.highlightedCode;s&&s.call(r);t.hooks.run("after-highlight",l)}},highlight:function(e,r){return n.stringify(t.tokenize(e,r))},tokenize:function(e,n){var r=t.Token,i=[e],s=n.rest;if(s){for(var o in s)n[o]=s[o];delete n.rest}e:for(var o in n){if(!n.hasOwnProperty(o)||!n[o])continue;var u=n[o],a=u.inside,f=!!u.lookbehind||0;u=u.pattern||u;for(var l=0;l<i.length;l++){var c=i[l];if(i.length>e.length)break e;if(c instanceof r)continue;u.lastIndex=0;var h=u.exec(c);if(h){f&&(f=h[1].length);var p=h.index-1+f,h=h[0].slice(f),d=h.length,v=p+d,m=c.slice(0,p+1),g=c.slice(v+1),y=[l,1];m&&y.push(m);var b=new r(o,a?t.tokenize(h,a):h);y.push(b);g&&y.push(g);Array.prototype.splice.apply(i,y)}}}return i},hooks:{all:{},add:function(e,n){var r=t.hooks.all;r[e]=r[e]||[];r[e].push(n)},run:function(e,n){var r=t.hooks.all[e];if(!r||!r.length)return;for(var i=0,s;s=r[i++];)s(n)}}},n=t.Token=function(e,t){this.type=e;this.content=t};n.stringify=function(e){if(typeof e=="string")return e;if(Object.prototype.toString.call(e)=="[object Array]"){for(var r=0;r<e.length;r++)e[r]=n.stringify(e[r]);return e.join("")}var i={type:e.type,content:n.stringify(e.content),tag:"span",classes:["token",e.type],attributes:{}};i.type=="comment"&&(i.attributes.spellcheck="true");t.hooks.run("wrap",i);var s="";for(var o in i.attributes)s+=o+'="'+(i.attributes[o]||"")+'"';return"<"+i.tag+' class="'+i.classes.join(" ")+'" '+s+">"+i.content+"</"+i.tag+">"};if(!self.document){self.addEventListener("message",function(e){var n=JSON.parse(e.data),r=n.language,i=n.code;self.postMessage(JSON.stringify(t.tokenize(i,t.languages[r])));self.close()},!1);return}var r=document.getElementsByTagName("script");r=r[r.length-1];if(r){t.filename=r.src;document.addEventListener&&!r.hasAttribute("data-manual")&&document.addEventListener("DOMContentLoaded",t.highlightAll)}})();;
+      Prism.languages.markup={comment:/&lt;!--[\w\W]*?--(&gt;|&gt;)/g,prolog:/&lt;\?.+?\?&gt;/,doctype:/&lt;!DOCTYPE.+?&gt;/,cdata:/&lt;!\[CDATA\[[\w\W]+?]]&gt;/i,tag:{pattern:/&lt;\/?[\w:-]+\s*(?:\s+[\w:-]+(?:=(?:("|')(\\?[\w\W])*?\1|\w+))?\s*)*\/?&gt;/gi,inside:{tag:{pattern:/^&lt;\/?[\w:-]+/i,inside:{punctuation:/^&lt;\/?/,namespace:/^[\w-]+?:/}},"attr-value":{pattern:/=(?:('|")[\w\W]*?(\1)|[^\s>]+)/gi,inside:{punctuation:/=|&gt;|"/g}},punctuation:/\/?&gt;/g,"attr-name":{pattern:/[\w:-]+/g,inside:{namespace:/^[\w-]+?:/}}}},entity:/&amp;#?[\da-z]{1,8};/gi};Prism.hooks.add("wrap",function(e){e.type==="entity"&&(e.attributes.title=e.content.replace(/&amp;/,"&"))});;
+      Prism.languages.css={comment:/\/\*[\w\W]*?\*\//g,atrule:/@[\w-]+?(\s+[^;{]+)?(?=\s*{|\s*;)/gi,url:/url\((["']?).*?\1\)/gi,selector:/[^\{\}\s][^\{\}]*(?=\s*\{)/g,property:/(\b|\B)[a-z-]+(?=\s*:)/ig,string:/("|')(\\?.)*?\1/g,important:/\B!important\b/gi,ignore:/&(lt|gt|amp);/gi,punctuation:/[\{\};:]/g};Prism.languages.markup&&Prism.languages.insertBefore("markup","tag",{style:{pattern:/(&lt;|<)style[\w\W]*?(>|&gt;)[\w\W]*?(&lt;|<)\/style(>|&gt;)/ig,inside:{tag:{pattern:/(&lt;|<)style[\w\W]*?(>|&gt;)|(&lt;|<)\/style(>|&gt;)/ig,inside:Prism.languages.markup.tag.inside},rest:Prism.languages.css}}});;
+      Prism.languages.clike={comment:{pattern:/(^|[^\\])(\/\*[\w\W]*?\*\/|\/\/.*?(\r?\n|$))/g,lookbehind:!0},string:/("|')(\\?.)*?\1/g,keyword:/\b(if|else|while|do|for|return|in|instanceof|function|new|try|catch|finally|null|break|continue)\b/g,"boolean":/\b(true|false)\b/g,number:/\b-?(0x)?\d*\.?[\da-f]+\b/g,operator:/[-+]{1,2}|!|=?&lt;|=?&gt;|={1,2}|(&amp;){1,2}|\|?\||\?|\*|\//g,ignore:/&(lt|gt|amp);/gi,punctuation:/[{}[\];(),.:]/g};;
+      Prism.languages.javascript=Prism.languages.extend("clike",{keyword:/\b(var|let|if|else|while|do|for|return|in|instanceof|function|new|with|typeof|try|catch|finally|null|break|continue)\b/g,number:/\b(-?(0x)?\d*\.?[\da-f]+|NaN|-?Infinity)\b/g});Prism.languages.insertBefore("javascript","keyword",{regex:{pattern:/(^|[^/])\/(?!\/)(\[.+?]|\\.|[^/\r\n])+\/[gim]{0,3}(?=\s*($|[\r\n,.;})]))/g,lookbehind:!0}});Prism.languages.markup&&Prism.languages.insertBefore("markup","tag",{script:{pattern:/(&lt;|<)script[\w\W]*?(>|&gt;)[\w\W]*?(&lt;|<)\/script(>|&gt;)/ig,inside:{tag:{pattern:/(&lt;|<)script[\w\W]*?(>|&gt;)|(&lt;|<)\/script(>|&gt;)/ig,inside:Prism.languages.markup.tag.inside},rest:Prism.languages.javascript}}});;
+      
+    </script>
+    <!-- App js-->
+    <script>
+      $(function(){
+        var $window = $(window);
+        $('.scrollspy .nav').affix({
+          offset: {
+            top: function () { return $window.width() <= 980 ? 480 : 400 }
+          , bottom: 50
+          }
+        });
+      })
+    </script>
+  </body>
+</html>

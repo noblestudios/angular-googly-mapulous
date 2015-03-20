@@ -1,0 +1,32 @@
+/**
+ * The Directive
+ *
+ * This builds a simple google map.  The map functionality can be easily
+ * extended to handle markers, clustering, overlays, etc.  Note that this
+ * directive requires the accompanying service.  The service can also be used
+ * to create google map functionality in any context.
+ **/
+angular.module( 'googlyMapulous' ).directive( 'googleMap', [ 'googleMaps', function ( googleMaps ) {
+  return {
+    restrict: 'E',
+    template: '<div class="google-map-container"><div class="google-map"></div></div>',
+    controller: [ '$scope', '$element', '$compile', function ( $scope, $element, $compile ) {
+      // Set basic map config up
+      // These can be overridden by config options contained in
+      // $scope.mapConfig
+      var options = {};
+      if ( $scope.mapConfig && $scope.mapConfig instanceof Object ) {
+        Object.keys( $scope.mapConfig ).forEach( function ( key ) {
+          options[ key ] = $scope.mapConfig[ key ];
+        });
+      }
+
+      // Build the map and save a reference to the created map object in the
+      // $scope for reference later from controller
+      $scope.googleMap = new googleMaps.GoogleMap( $element.find( '.google-map' )[0], $scope, $compile, options );
+
+      // Fire event at the point so the outer control knows we're done
+      $scope.$emit( 'googleMapLoaded', $scope.googleMap );
+    }]
+  };
+}]);
