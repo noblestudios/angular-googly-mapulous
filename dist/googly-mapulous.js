@@ -352,12 +352,30 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
   GoogleMap.prototype.center = function ( lat, lng, pan ) {
     pan = pan || false;
 
-    if ( pan ) {
-      this.state.map.panTo( new google.maps.LatLng( lat, lng ) );
+    if ( lat && lng && this.state.map ) {
+      if ( pan ) {
+        this.state.map.panTo( new google.maps.LatLng( lat, lng ) );
+      } else {
+        this.state.map.setCenter( new google.maps.LatLng( lat, lng ) );
+      }
     } else {
-      this.state.map.setCenter( new google.maps.LatLng( lat, lng ) );
+      this.errors.center( lat, lng );
     }
   };
+
+  /**
+   * Zoom the map.
+   *
+   * @param {Integer} zoom Zoom level.  Valid values are 0 (all the way out) to
+   * 21 (all the way in)
+   **/
+  GoogleMap.prototype.zoom = function ( zoom ) {
+    if ( this.state.map && zoom && zoom >= 0 && zoom <= 22 ) {
+      this.state.map.setZoom( zoom );
+    } else {
+      this.errors.zoom( zoom );
+    }
+  }
 
   /**
    * Close infoboxes for all current markers contained in the map.
@@ -514,6 +532,25 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
       }
       if ( ! width || ! height ) {
         console.error( 'Valid width height in meters must be passed to GoogleMap.addGroundOverlay' );
+      }
+    },
+    center: function ( lat, lng ) {
+      if ( ! this.state.map ) {
+        console.error( 'Google Map must be active before attempting to center the map' );
+      }
+      if ( ! lat || ! lng ) {
+        console.error( 'Valid lat/lng must be passed to center map' );
+      }
+    },
+    zoom: function ( zoom ) {
+      if ( ! this.state.map ) {
+        console.error( 'Google Map must be active before attempting to zoom the map' );
+      }
+      if ( ! zoom ) {
+        console.error( 'Valid zoom must be passed to zoom the map' );
+      }
+      if ( zoom < 0 || zoom > 21 ) {
+        console.error( 'Passed zoom value falls outside of acceptable zoom range (0 - 21)' );
       }
     }
   };
