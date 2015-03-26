@@ -835,11 +835,15 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * Custom hover functionality.  Will fire callback for specified event (along
    * with internal functions for same event as needed).
    *
-   * @param {Function} callback Function to call when even is triggered
+   * @param {Function} overCallback Function to call on over event
+   * @param {Function} leaveCallback Function to call on leave event
    **/
-  Marker.prototype.onHover = function ( callback ) {
-    if ( callback && typeof( callback ) === 'function' ) {
-      this.addEvent( 'mouseover', callback );
+  Marker.prototype.onHover = function ( overCallback, leaveCallback ) {
+    if ( overCallback && typeof( overCallback ) === 'function' ) {
+      this.addEvent( 'mouseover', overCallback );
+    }
+    if ( leaveCallback && typeof( leaveCallback ) === 'function' ) {
+      this.addEvent( 'mouseleave', leaveCallback );
     }
   };
 
