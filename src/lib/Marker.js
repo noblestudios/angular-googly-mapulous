@@ -282,7 +282,7 @@
    **/
   Marker.prototype.onHover = function ( overCallback, leaveCallback ) {
     var labelDiv = this.state.marker.label
-      ? this.state.marker.label.eventDiv_
+      ? this.state.marker.label.labelDiv_
       : null;
 
     if ( overCallback && typeof( overCallback ) === 'function' ) {
@@ -306,7 +306,7 @@
    **/
   Marker.prototype.onClick = function ( callback ) {
     var labelDiv = this.state.marker.label
-      ? this.state.marker.label.eventDiv_
+      ? this.state.marker.label.labelDiv_
       : null;
 
     if ( callback && typeof( callback ) === 'function' ) {
