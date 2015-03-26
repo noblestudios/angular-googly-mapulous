@@ -37,6 +37,9 @@ angular.module( 'googlyMapulous' ).directive( 'googleMap', [ 'googleMaps', funct
 
       // Fire event at the point so the outer control knows we're done
       $scope.$emit( 'googleMapLoaded', $scope.googleMap );
+
+      // Also set a scope variable for checking map loaded status
+      $scope.mapLoaded = true;
     }]
   };
 }]);
