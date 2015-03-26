@@ -275,15 +275,25 @@
    * Custom hover functionality.  Will fire callback for specified event (along
    * with internal functions for same event as needed).
    *
-   * @param {Function} overCallback Function to call on over event
-   * @param {Function} leaveCallback Function to call on leave event
+   * @param {Function} overCallback Function to call on over event.  Will be
+   * passed the event and label element if available.
+   * @param {Function} leaveCallback Function to call on leave event. Will be
+   * passed the event and label element if available.
    **/
   Marker.prototype.onHover = function ( overCallback, leaveCallback ) {
+    var labelDiv = this.state.marker.label
+      ? this.state.marker.label.eventDiv_
+      : null;
+
     if ( overCallback && typeof( overCallback ) === 'function' ) {
-      this.addEvent( 'mouseover', overCallback );
+      this.addEvent( 'mouseenter', (function ( event ) {
+        overCallback.call( this, event, labelDiv );
+      }).bind( this ));
     }
     if ( leaveCallback && typeof( leaveCallback ) === 'function' ) {
-      this.addEvent( 'mouseleave', leaveCallback );
+      this.addEvent( 'mouseleave', (function ( event ) {
+        leaveCallback.call( this, event, labelDiv );
+      }).bind( this ));
     }
   };
 
@@ -291,11 +301,18 @@
    * Custom click functionality.  Will fire callback for specified event (along
    * with internal functions for same event as needed).
    *
-   * @param {Function} callback Function to call when even is triggered
+   * @param {Function} callback Function to call when even is triggered.  Will
+   * be passed event and label element if available.
    **/
   Marker.prototype.onClick = function ( callback ) {
+    var labelDiv = this.state.marker.label
+      ? this.state.marker.label.eventDiv_
+      : null;
+
     if ( callback && typeof( callback ) === 'function' ) {
-      this.addEvent( 'click', callback );
+      this.addEvent( 'click', (function ( event ) {
+        callback.call( this, event, labelDiv );
+      }).bind( this ));
     }
   };
 
