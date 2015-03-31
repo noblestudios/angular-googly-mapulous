@@ -408,6 +408,50 @@
   };
 
   /**
+   * Returns true if map currently has Markers assigned to it.
+   *
+   * @return {Boolean} Returns true if map has Markers
+   */
+  GoogleMap.prototype.hasMarkers = function () {
+    return ( this.state.markers && this.state.markers.length )
+      ? true
+      : false;
+  };
+
+  /**
+   * Returns true if map currently has Clusters assigned to it.
+   *
+   * @return {Boolean} Returns true if map has Clusters
+   */
+  GoogleMap.prototype.hasClusters = function () {
+    return ( this.state.clusters && this.state.clusters.length )
+      ? true
+      : false;
+  };
+
+  /**
+   * Returns true if map currently has overlays assigned to it.
+   *
+   * @return {Boolean} Returns true if map has overlays
+   */
+  GoogleMap.prototype.hasOverlays = function () {
+    return ( this.state.overlays && this.state.overlays.length )
+      ? true
+      : false;
+  };
+
+  /**
+   * Returns true if map is loaded (has a google map object).
+   *
+   * @return {Boolean} Returns true if map is loaded
+   */
+  GoogleMap.prototype.isLoaded = function () {
+    return this.state.map
+      ? true
+      : false;
+  };
+
+  /**
    * Map-wide config options.
    **/
   GoogleMap.prototype.config = {

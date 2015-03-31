@@ -467,6 +467,50 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
   };
 
   /**
+   * Returns true if map currently has Markers assigned to it.
+   *
+   * @return {Boolean} Returns true if map has Markers
+   */
+  GoogleMap.prototype.hasMarkers = function () {
+    return ( this.state.markers && this.state.markers.length )
+      ? true
+      : false;
+  };
+
+  /**
+   * Returns true if map currently has Clusters assigned to it.
+   *
+   * @return {Boolean} Returns true if map has Clusters
+   */
+  GoogleMap.prototype.hasClusters = function () {
+    return ( this.state.clusters && this.state.clusters.length )
+      ? true
+      : false;
+  };
+
+  /**
+   * Returns true if map currently has overlays assigned to it.
+   *
+   * @return {Boolean} Returns true if map has overlays
+   */
+  GoogleMap.prototype.hasOverlays = function () {
+    return ( this.state.overlays && this.state.overlays.length )
+      ? true
+      : false;
+  };
+
+  /**
+   * Returns true if map is loaded (has a google map object).
+   *
+   * @return {Boolean} Returns true if map is loaded
+   */
+  GoogleMap.prototype.isLoaded = function () {
+    return this.state.map
+      ? true
+      : false;
+  };
+
+  /**
    * Map-wide config options.
    **/
   GoogleMap.prototype.config = {
@@ -841,18 +885,22 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * passed the event and label element if available.
    **/
   Marker.prototype.onHover = function ( overCallback, leaveCallback ) {
-    var labelDiv = this.state.marker.label
-      ? this.state.marker.label.labelDiv_
-      : null;
+    var labelDiv = null;
+    var eventDiv = null;
+
+    if ( this.state.marker.label ) {
+      labelDiv = this.state.marker.label.labelDiv_;
+      eventDiv = this.state.marker.label.eventDiv_;
+    }
 
     if ( overCallback && typeof( overCallback ) === 'function' ) {
       this.addEvent( 'mouseenter', (function ( event ) {
-        overCallback.call( this, event, labelDiv );
+        overCallback.call( this, event, labelDiv, eventDiv );
       }).bind( this ));
     }
     if ( leaveCallback && typeof( leaveCallback ) === 'function' ) {
       this.addEvent( 'mouseleave', (function ( event ) {
-        leaveCallback.call( this, event, labelDiv );
+        leaveCallback.call( this, event, labelDiv, eventDiv );
       }).bind( this ));
     }
   };
@@ -865,13 +913,17 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * be passed event and label element if available.
    **/
   Marker.prototype.onClick = function ( callback ) {
-    var labelDiv = this.state.marker.label
-      ? this.state.marker.label.labelDiv_
-      : null;
+    var labelDiv = null;
+    var eventDiv = null;
+
+    if ( this.state.marker.label ) {
+      labelDiv = this.state.marker.label.labelDiv_;
+      eventDiv = this.state.marker.label.eventDiv_;
+    }
 
     if ( callback && typeof( callback ) === 'function' ) {
       this.addEvent( 'click', (function ( event ) {
-        callback.call( this, event, labelDiv );
+        callback.call( this, event, labelDiv, eventDiv );
       }).bind( this ));
     }
   };
@@ -909,6 +961,15 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
     } else {
       console.error( 'Invalid params passed to Marker.addEvent' );
     }
+  };
+
+  /**
+   * Check if Marker is currently assigned to a map.
+   *
+   * @return {Boolean} Returns true if Marker is attached to a map
+   */
+  Marker.prototype.hasMap = function () {
+    return this.state.map ? true : false;
   };
 
   /**

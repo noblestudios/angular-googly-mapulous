@@ -281,18 +281,22 @@
    * passed the event and label element if available.
    **/
   Marker.prototype.onHover = function ( overCallback, leaveCallback ) {
-    var labelDiv = this.state.marker.label
-      ? this.state.marker.label.labelDiv_
-      : null;
+    var labelDiv = null;
+    var eventDiv = null;
+
+    if ( this.state.marker.label ) {
+      labelDiv = this.state.marker.label.labelDiv_;
+      eventDiv = this.state.marker.label.eventDiv_;
+    }
 
     if ( overCallback && typeof( overCallback ) === 'function' ) {
       this.addEvent( 'mouseenter', (function ( event ) {
-        overCallback.call( this, event, labelDiv );
+        overCallback.call( this, event, labelDiv, eventDiv );
       }).bind( this ));
     }
     if ( leaveCallback && typeof( leaveCallback ) === 'function' ) {
       this.addEvent( 'mouseleave', (function ( event ) {
-        leaveCallback.call( this, event, labelDiv );
+        leaveCallback.call( this, event, labelDiv, eventDiv );
       }).bind( this ));
     }
   };
@@ -305,13 +309,17 @@
    * be passed event and label element if available.
    **/
   Marker.prototype.onClick = function ( callback ) {
-    var labelDiv = this.state.marker.label
-      ? this.state.marker.label.labelDiv_
-      : null;
+    var labelDiv = null;
+    var eventDiv = null;
+
+    if ( this.state.marker.label ) {
+      labelDiv = this.state.marker.label.labelDiv_;
+      eventDiv = this.state.marker.label.eventDiv_;
+    }
 
     if ( callback && typeof( callback ) === 'function' ) {
       this.addEvent( 'click', (function ( event ) {
-        callback.call( this, event, labelDiv );
+        callback.call( this, event, labelDiv, eventDiv );
       }).bind( this ));
     }
   };
@@ -349,6 +357,15 @@
     } else {
       console.error( 'Invalid params passed to Marker.addEvent' );
     }
+  };
+
+  /**
+   * Check if Marker is currently assigned to a map.
+   *
+   * @return {Boolean} Returns true if Marker is attached to a map
+   */
+  Marker.prototype.hasMap = function () {
+    return this.state.map ? true : false;
   };
 
   /**
