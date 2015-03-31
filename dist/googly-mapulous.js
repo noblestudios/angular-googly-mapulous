@@ -31,15 +31,37 @@ angular.module( 'googlyMapulous' ).directive( 'googleMap', [ 'googleMaps', funct
         });
       }
 
-      // Build the map and save a reference to the created map object in the
-      // $scope for reference later from controller
-      $scope.googleMap = new googleMaps.GoogleMap( $element.find( '.google-map' )[0], $scope, $compile, options );
+      // Check for presence of manual init var in $scope.  Wait for manual call
+      // before initting if set, otherwise create the map immediately
+      if ( $scope.mapManualInit ) {
+        var unsubscribe = $scope.$on( 'initializeGoogleMap', function () {
+          initMap();
 
-      // Fire event at the point so the outer control knows we're done
-      $scope.$emit( 'googleMapLoaded', $scope.googleMap );
+          unsubscribe();
+        });
+      } else {
+        initMap();
+      }
 
-      // Also set a scope variable for checking map loaded status
-      $scope.mapLoaded = true;
+      /////////////////////////////////////////////////////////////////////////////
+      // Internal functions ///////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////
+
+      /**
+       * Load the map (create the actual google map object).  Fire loaded event
+       * when finished.
+       */
+      function initMap () {
+        // Build the map and save a reference to the created map object in the
+        // $scope for reference later from controller
+        $scope.googleMap = new googleMaps.GoogleMap( $element.find( '.google-map' )[0], $scope, $compile, options );
+
+        // Fire event at the point so the outer control knows we're done
+        $scope.$emit( 'googleMapLoaded', $scope.googleMap );
+
+        // Also set a scope variable for checking map loaded status
+        $scope.mapLoaded = true;
+      }
     }]
   };
 }]);
