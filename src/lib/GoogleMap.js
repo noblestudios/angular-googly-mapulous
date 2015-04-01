@@ -338,16 +338,26 @@
     markers = markers || this.state.markers;
 
     if ( markers && markers.length ) {
-      // Set dirty flag while fitting bounds so zoom events
-      // don't fire
-      this.state.fittingBounds = true;
-
-      var bounds = new google.maps.LatLngBounds();
-      markers.forEach( function ( marker ) {
-        bounds.extend( marker.state.marker.getPosition() );
+      // First get the set of visible markers - no sense fitting bounds to a set
+      // of invisible markers
+      var visibleMarkers = markers.filter( function ( marker ) {
+        return marker.isVisible();
       });
 
-      this.state.map.fitBounds( bounds );
+      if ( visibleMarkers.length ) {
+        // Set dirty flag while fitting bounds so zoom events
+        // don't fire
+        this.state.fittingBounds = true;
+
+        var bounds = new google.maps.LatLngBounds();
+        markers.forEach( function ( marker ) {
+          if ( marker.isVisible() ) {
+            bounds.extend( marker.state.marker.getPosition() );
+          }
+        });
+
+        this.state.map.fitBounds( bounds );
+      }
     }
   };
 

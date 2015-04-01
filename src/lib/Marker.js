@@ -256,7 +256,10 @@
    * deleted (still has its internal reference to the map intact).
    **/
   Marker.prototype.show = function () {
-    if ( this.state.map ) { this.state.marker.setMap( this.state.map.state.map ) };
+    if ( this.state.map ) {
+      this.state.marker.setMap( this.state.map.state.map );
+      this.state.visible = true;
+    };
   };
 
   /**
@@ -265,6 +268,7 @@
    **/
   Marker.prototype.hide = function () {
     this.state.marker.setMap( null );
+    this.state.visible = false;
   };
 
   /**
@@ -381,6 +385,15 @@
   };
 
   /**
+   * Return whether or not the Marker is currently visible.
+   *
+   * @return {Boolean} Returns visibility status
+   */
+  Marker.prototype.isVisible = function () {
+    return this.state.visible;
+  };
+
+  /**
    * Default Marker config.
    **/
   Marker.prototype.config = {
@@ -400,7 +413,8 @@
     marker: null,
     data: null,
     infobox: null,
-    infoboxContent: null
+    infoboxContent: null,
+    visible: true
   };
 
   /**

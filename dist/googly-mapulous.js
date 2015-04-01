@@ -419,16 +419,26 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
     markers = markers || this.state.markers;
 
     if ( markers && markers.length ) {
-      // Set dirty flag while fitting bounds so zoom events
-      // don't fire
-      this.state.fittingBounds = true;
-
-      var bounds = new google.maps.LatLngBounds();
-      markers.forEach( function ( marker ) {
-        bounds.extend( marker.state.marker.getPosition() );
+      // First get the set of visible markers - no sense fitting bounds to a set
+      // of invisible markers
+      var visibleMarkers = markers.filter( function ( marker ) {
+        return marker.isVisible();
       });
 
-      this.state.map.fitBounds( bounds );
+      if ( visibleMarkers.length ) {
+        // Set dirty flag while fitting bounds so zoom events
+        // don't fire
+        this.state.fittingBounds = true;
+
+        var bounds = new google.maps.LatLngBounds();
+        markers.forEach( function ( marker ) {
+          if ( marker.isVisible() ) {
+            bounds.extend( marker.state.marker.getPosition() );
+          }
+        });
+
+        this.state.map.fitBounds( bounds );
+      }
     }
   };
 
@@ -878,7 +888,10 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * deleted (still has its internal reference to the map intact).
    **/
   Marker.prototype.show = function () {
-    if ( this.state.map ) { this.state.marker.setMap( this.state.map.state.map ) };
+    if ( this.state.map ) {
+      this.state.marker.setMap( this.state.map.state.map );
+      this.state.visible = true;
+    };
   };
 
   /**
@@ -887,6 +900,7 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    **/
   Marker.prototype.hide = function () {
     this.state.marker.setMap( null );
+    this.state.visible = false;
   };
 
   /**
@@ -1003,6 +1017,15 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
   };
 
   /**
+   * Return whether or not the Marker is currently visible.
+   *
+   * @return {Boolean} Returns visibility status
+   */
+  Marker.prototype.isVisible = function () {
+    return this.state.visible;
+  };
+
+  /**
    * Default Marker config.
    **/
   Marker.prototype.config = {
@@ -1022,7 +1045,8 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
     marker: null,
     data: null,
     infobox: null,
-    infoboxContent: null
+    infoboxContent: null,
+    visible: true
   };
 
   /**
