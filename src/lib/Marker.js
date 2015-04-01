@@ -224,8 +224,11 @@
   Marker.prototype.addToMap = function ( map ) {
     this.state.marker.setMap( map.state.map );
 
-    // Update bookkeeping
+    // Update internal bookkeeping
     this.state.map = map;
+
+    // Update map's bookkeeping
+    map.state.markers.push( this );
   };
 
   /**
@@ -233,9 +236,18 @@
    * needs to be deleted separately).
    **/
   Marker.prototype.remove = function () {
+    // Update map's bookkeeping first
+    for ( var i = this.state.map.markers.length; i > 0; i-- ) {
+      if ( this.state.map.markers[ i ] === this ) {
+        // Update the internal array
+        this.state.map.markers.splice( i, 1 );
+      }
+    }
+
+    // Then null out the map
     this.state.marker.setMap( null );
 
-    // Make sure to null out the map object
+    // And update internal bookkeeping
     this.state.map = null;
   };
 

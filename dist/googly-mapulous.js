@@ -157,6 +157,8 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    **/
   GoogleMap.prototype.addMarkers = function ( markers ) {
     if ( markers ) {
+      if ( ! ( markers instanceof Array ) ) { markers = [ markers ]; }
+
       if ( markers.length ) {
         markers.forEach( (function ( marker ) {
           // Add to physical map
@@ -165,12 +167,6 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
           // And update bookkeeping
           this.state.markers.push( marker );
         }).bind( this ));
-      } else {
-        // Add to physical map
-        markers.addToMap( this );
-
-        // And update bookkeeping
-        this.state.markers.push( markers );
       }
     } else {
       console.error( 'Invalid Marker object/array passed to GoogleMap.addMarkers' );
@@ -202,13 +198,13 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * @param {Mixed} marker Constructed Marker object or array of Markers
    **/
   GoogleMap.prototype.removeMarkers = function ( markers ) {
-    if ( markers && markers.length ) {
+    if ( markers ) {
+      if ( ! ( markers instanceof Array ) ) { markers = [ markers ]; }
+
       if ( markers.length ) {
         markers.forEach( (function ( marker ) {
           this.removeMarker( marker );
         }).bind( this ));
-      } else {
-        this.removeMarker( markers );
       }
     } else {
       console.error( 'Invalid array of Markers passed to GoogleMap.removeMarkers' );
@@ -850,8 +846,11 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
   Marker.prototype.addToMap = function ( map ) {
     this.state.marker.setMap( map.state.map );
 
-    // Update bookkeeping
+    // Update internal bookkeeping
     this.state.map = map;
+
+    // Update map's bookkeeping
+    map.state.markers.push( this );
   };
 
   /**
@@ -859,9 +858,18 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * needs to be deleted separately).
    **/
   Marker.prototype.remove = function () {
+    // Update map's bookkeeping first
+    for ( var i = this.state.map.markers.length; i > 0; i-- ) {
+      if ( this.state.map.markers[ i ] === this ) {
+        // Update the internal array
+        this.state.map.markers.splice( i, 1 );
+      }
+    }
+
+    // Then null out the map
     this.state.marker.setMap( null );
 
-    // Make sure to null out the map object
+    // And update internal bookkeeping
     this.state.map = null;
   };
 

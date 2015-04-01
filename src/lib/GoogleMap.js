@@ -76,6 +76,8 @@
    **/
   GoogleMap.prototype.addMarkers = function ( markers ) {
     if ( markers ) {
+      if ( ! ( markers instanceof Array ) ) { markers = [ markers ]; }
+
       if ( markers.length ) {
         markers.forEach( (function ( marker ) {
           // Add to physical map
@@ -84,12 +86,6 @@
           // And update bookkeeping
           this.state.markers.push( marker );
         }).bind( this ));
-      } else {
-        // Add to physical map
-        markers.addToMap( this );
-
-        // And update bookkeeping
-        this.state.markers.push( markers );
       }
     } else {
       console.error( 'Invalid Marker object/array passed to GoogleMap.addMarkers' );
@@ -121,13 +117,13 @@
    * @param {Mixed} marker Constructed Marker object or array of Markers
    **/
   GoogleMap.prototype.removeMarkers = function ( markers ) {
-    if ( markers && markers.length ) {
+    if ( markers ) {
+      if ( ! ( markers instanceof Array ) ) { markers = [ markers ]; }
+
       if ( markers.length ) {
         markers.forEach( (function ( marker ) {
           this.removeMarker( marker );
         }).bind( this ));
-      } else {
-        this.removeMarker( markers );
       }
     } else {
       console.error( 'Invalid array of Markers passed to GoogleMap.removeMarkers' );
