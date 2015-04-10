@@ -280,13 +280,14 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * Add a polygon overlay to the map based on passed points.  Takes default
    * arguments for stroke and fill or custom args can also be rolled in.
    *
-   * @param {Array}   points        Array of lat/lng objects
-   * @param {String}  strokeColor   Color of outline (optional)
-   * @param {Float}   strokeOpacity Opacity of outline (optional)
-   * @param {Integer} strokeWeight  Width of outline, in pixels (optional)
-   * @param {String}  fillColor     Color of polygon fill (optional)
-   * @param {Float}   fillOpacity   Opacity of fill (optional)
-   * @param {Object}  options       Object of additional properties (optional)
+   * @param  {Array}   points        Array of lat/lng objects
+   * @param  {String}  strokeColor   Color of outline (optional)
+   * @param  {Float}   strokeOpacity Opacity of outline (optional)
+   * @param  {Integer} strokeWeight  Width of outline, in pixels (optional)
+   * @param  {String}  fillColor     Color of polygon fill (optional)
+   * @param  {Float}   fillOpacity   Opacity of fill (optional)
+   * @param  {Object}  options       Object of additional properties (optional)
+   * @return {Object}                Returns the created map overlay object
    **/
   GoogleMap.prototype.addPolygonOverlay = function ( points, strokeColor, strokeOpacity, strokeWeight, fillColor, fillOpacity, options ) {
     if ( points && points.length ) {
@@ -322,9 +323,13 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
 
       // Save internal reference to the overlay
       this.state.overlays.push( overlay );
+
+      return overlay;
     } else {
       console.error( 'Array of lat/lng objects must be passed to GoogleMap.addPolygonOverlay' );
     }
+
+    return null;
   };
 
   /**
@@ -332,12 +337,13 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * based on desired width and height of coverage in meters (i.e. a geometric
    * square on the ground).  Requires the Geometry library.
    *
-   * @param {String} imageUrl  URL to image for overlay
-   * @param {Float}  centerLat Center latitude
-   * @param {Float}  centerLng Center longitude
-   * @param {Int}    width     Desired width of overlay (in meters)
-   * @param {Int}    height    Desired height of overlay (in meters)
-   * @param {Float}  opacity   Overlay opacity (optional)
+   * @param  {String} imageUrl  URL to image for overlay
+   * @param  {Float}  centerLat Center latitude
+   * @param  {Float}  centerLng Center longitude
+   * @param  {Int}    width     Desired width of overlay (in meters)
+   * @param  {Int}    height    Desired height of overlay (in meters)
+   * @param  {Float}  opacity   Overlay opacity (optional)
+   * @return {Object}           Returns the created map overlay object
    **/
   GoogleMap.prototype.addGroundOverlay = function ( imageUrl, centerLat, centerLng, width, height, opacity ) {
     if ( google.maps.geometry && imageUrl && centerLat && centerLng && width && height ) {
@@ -358,9 +364,13 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
 
       // Save internal reference to the overlay
       this.state.overlays.push( overlay );
+
+      return overlay;
     } else {
       this.errors.groundOverlay( imageUrl, centerLat, centerLng, width, height );
     }
+
+    return null;
   };
 
   /**
