@@ -18,12 +18,11 @@
    * @return {Object}          Returns constructed Cluster object
    **/
   var Cluster = function ( markers, map, icon, width, height, options, label, data ) {
-    if ( markers && markers.length && google.maps.geometry ) {
+    if ( google.maps.geometry ) {
       // Make sure this has a unique copy of the state object
       this.state = JSON.parse(JSON.stringify( this.state ));
 
       // Update internal state with passed params
-      this.state.markers = markers;
       this.state.icon    = icon;
       this.state.width   = width;
       this.state.height  = height,
@@ -31,13 +30,16 @@
       this.state.label   = label;
       this.state.data    = data;
 
+      // Add any initial markers passed in
+      if ( markers && markers.length ) { this.state.markers = markers; }
+
       // If map was passed, attach to map immediately and start clustering
       if ( map ) { this.setMap( map ); }
 
       // And back we go
       return this;
     } else {
-      this.errors.init( markers );
+      this.errors.init();
     }
 
     // Something didn't go right
@@ -74,11 +76,15 @@
 
       // Bind clustering to map zoom event
       map.addEvent( 'zoom_changed', debounce(( function ( event ) {
-        this.clusterMarkers();
+        if ( this.state.markers.length ) {
+          this.clusterMarkers();
+        }
       }).bind( this ), 150 ));
 
-      // And start clustering immediately
-      this.clusterMarkers();
+      // And start clustering immediately if we also have markers
+      if ( this.state.markers.length ) {
+        this.clusterMarkers();
+      }
     } else {
       console.error( 'Invalid map object passed to Cluster.setMap' );
     }
@@ -90,7 +96,7 @@
    * finished markers.  Will do nothing if map is not set already.
    **/
   Cluster.prototype.clusterMarkers = function () {
-    if ( this.state.map ) {
+    if ( this.state.map && this.state.markers.length ) {
       // First clear existing list of markers
       this.clearMarkers();
 
@@ -390,12 +396,9 @@
    * Error handling.
    **/
   Cluster.prototype.errors = {
-    init: function ( markers ) {
+    init: function () {
       if ( ! google.maps.geometry ) {
         console.error( 'Geometry library for Google Maps API not loaded.  Clustering will not be available.  Example include URL: //maps.googleapis.com/maps/api/js?key=key&sensor=false&libraries=geometry' );
-      }
-      if ( ! markers || ! markers.length ) {
-        console.error( 'Valid array of Marker objects must be passed to Cluster object' );
       }
     },
     group: function ( markers, distance ) {

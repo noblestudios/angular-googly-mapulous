@@ -879,10 +879,12 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    **/
   Marker.prototype.remove = function () {
     // Update map's bookkeeping first
-    for ( var i = this.state.map.markers.length; i > 0; i-- ) {
-      if ( this.state.map.markers[ i ] === this ) {
-        // Update the internal array
-        this.state.map.markers.splice( i, 1 );
+    if ( this.state.map && this.state.map.markers && this.state.map.markers.length ) {
+      for ( var i = this.state.map.markers.length; i > 0; i-- ) {
+        if ( this.state.map.markers[ i ] === this ) {
+          // Update the internal array
+          this.state.map.markers.splice( i, 1 );
+        }
       }
     }
 
@@ -1105,12 +1107,11 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * @return {Object}          Returns constructed Cluster object
    **/
   var Cluster = function ( markers, map, icon, width, height, options, label, data ) {
-    if ( markers && markers.length && google.maps.geometry ) {
+    if ( google.maps.geometry ) {
       // Make sure this has a unique copy of the state object
       this.state = JSON.parse(JSON.stringify( this.state ));
 
       // Update internal state with passed params
-      this.state.markers = markers;
       this.state.icon    = icon;
       this.state.width   = width;
       this.state.height  = height,
@@ -1118,13 +1119,16 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
       this.state.label   = label;
       this.state.data    = data;
 
+      // Add any initial markers passed in
+      if ( markers && markers.length ) { this.state.markers = markers; }
+
       // If map was passed, attach to map immediately and start clustering
       if ( map ) { this.setMap( map ); }
 
       // And back we go
       return this;
     } else {
-      this.errors.init( markers );
+      this.errors.init();
     }
 
     // Something didn't go right
@@ -1161,11 +1165,15 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
 
       // Bind clustering to map zoom event
       map.addEvent( 'zoom_changed', debounce(( function ( event ) {
-        this.clusterMarkers();
+        if ( this.state.markers.length ) {
+          this.clusterMarkers();
+        }
       }).bind( this ), 150 ));
 
-      // And start clustering immediately
-      this.clusterMarkers();
+      // And start clustering immediately if we also have markers
+      if ( this.state.markers.length ) {
+        this.clusterMarkers();
+      }
     } else {
       console.error( 'Invalid map object passed to Cluster.setMap' );
     }
@@ -1177,7 +1185,7 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * finished markers.  Will do nothing if map is not set already.
    **/
   Cluster.prototype.clusterMarkers = function () {
-    if ( this.state.map ) {
+    if ( this.state.map && this.state.markers.length ) {
       // First clear existing list of markers
       this.clearMarkers();
 
@@ -1477,12 +1485,9 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * Error handling.
    **/
   Cluster.prototype.errors = {
-    init: function ( markers ) {
+    init: function () {
       if ( ! google.maps.geometry ) {
         console.error( 'Geometry library for Google Maps API not loaded.  Clustering will not be available.  Example include URL: //maps.googleapis.com/maps/api/js?key=key&sensor=false&libraries=geometry' );
-      }
-      if ( ! markers || ! markers.length ) {
-        console.error( 'Valid array of Marker objects must be passed to Cluster object' );
       }
     },
     group: function ( markers, distance ) {

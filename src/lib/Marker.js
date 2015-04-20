@@ -237,10 +237,12 @@
    **/
   Marker.prototype.remove = function () {
     // Update map's bookkeeping first
-    for ( var i = this.state.map.markers.length; i > 0; i-- ) {
-      if ( this.state.map.markers[ i ] === this ) {
-        // Update the internal array
-        this.state.map.markers.splice( i, 1 );
+    if ( this.state.map && this.state.map.markers && this.state.map.markers.length ) {
+      for ( var i = this.state.map.markers.length; i > 0; i-- ) {
+        if ( this.state.map.markers[ i ] === this ) {
+          // Update the internal array
+          this.state.map.markers.splice( i, 1 );
+        }
       }
     }
 
