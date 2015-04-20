@@ -22,6 +22,9 @@
       // Make sure this has a unique copy of the state object
       this.state = JSON.parse(JSON.stringify( this.state ));
 
+      // As well as the events object
+      this.events = JSON.parse(JSON.stringify( this.events ));
+
       // Update internal state with passed params
       this.state.icon    = icon;
       this.state.width   = width;
@@ -91,6 +94,65 @@
   };
 
   /**
+   * Register an infobox for cluster markers.  This will be instantiated when
+   * each cluster marker is created and has the same arguments as the Marker
+   * flavor of this.
+   *
+   * @param {String}  content    Infobox content - can be HTML (optional)
+   * @param {String}  closeIcon  Path to close icon to use for infobox (optional)
+   * @param {String}  boxClass   Custom container class to apply to infobox
+   * (optional)
+   * @param {Object}  offset     Object containing x and y offset coordinates from
+   * infobox marker (optional)
+   * @param {Object}  options    Additional custom options to pass into InfoBox
+   * constructor
+   * @param {String}  openOn     Event to open infobox on.  Can be either 'hover'
+   * or 'click.'  Defaults to hover.
+   * @param {Boolean} scrollable Whether content should be scrollable or not
+   * (requires JScrollPane)
+   */
+  Cluster.prototype.addInfobox = function ( content, closeIcon, boxClass, offset, options, openOn, scrollable ) {
+    this.state.infobox = {
+      content: content,
+      closeIcon: closeIcon,
+      boxClass: boxClass,
+      offset: offset,
+      options: options,
+      openOn: openOn,
+      scrollable: scrollable
+    };
+  };
+
+  /**
+   * Register hover functions.  These will be applied to constructed Marker
+   * objects as they are created.
+   *
+   * @param  {Function} overCallback  Function called on mouseenter
+   * @param  {Function} leaveCallback Function called on mouseleave
+   */
+  Cluster.prototype.onHover = function ( overCallback, leaveCallback ) {
+    if ( overCallback && typeof( overCallback ) === 'function' ) {
+      this.events.mouseenter = overCallback;
+    }
+
+    if ( leaveCallback && typeof( leaveCallback ) === 'function' ) {
+      this.events.mouseleave = leaveCallback;
+    }
+  };
+
+  /**
+   * Register click function.  This will be applied to constructed Marker
+   * objects as they are created.
+   *
+   * @param  {Function} callback Function called on click
+   */
+  Cluster.prototype.onClick = function ( callback ) {
+    if ( callback && typeof( callback ) === 'function' ) {
+      this.events.click = callback;
+    }
+  };
+
+  /**
    * Run a single round of marker clustering.  This will group markers based on
    * distance, build appropriate map markers for result and update the map with
    * finished markers.  Will do nothing if map is not set already.
@@ -111,7 +173,7 @@
             var clusterMarker = new Marker(
               group.centroid.lat,
               group.centroid.lng,
-              null,
+              this.state.map,
               this.state.icon,
               this.state.width,
               this.state.height,
@@ -119,6 +181,28 @@
               this.state.label,
               this.state.data
             );
+
+            // Apply callback functions to new marker if needed
+            if ( this.events.mouseenter || this.events.mouseleave ) {
+              clusterMarker.onHover( this.events.mouseenter, this.events.mouseleave );
+            }
+
+            if ( this.events.click ) {
+              clusterMarker.onClick( this.events.click );
+            }
+
+            // Create infobox for cluster marker if needed
+            if ( this.state.infobox ) {
+              clusterMarker.addInfobox(
+                this.state.infobox.content,
+                this.state.infobox.closeIcon,
+                this.state.infobox.boxClass,
+                this.state.infobox.offset,
+                this.state.infobox.options,
+                this.state.infobox.openOn,
+                this.state.infobox.scrollable
+              );
+            }
 
             // Save reference to markers and marker data with object as well
             clusterMarker.markerData = group.data;
@@ -389,7 +473,20 @@
     height: null,
     options: null,
     label: null,
-    data: null
+    data: null,
+    infobox: null
+  };
+
+  /**
+   * Internal registry for event handlers.  These are passed on to Cluster
+   * Marker objects as they are created.
+   *
+   * @type {Object}
+   */
+  Cluster.prototype.events = {
+    mouseenter: null,
+    mouseleave: null,
+    click: null
   };
 
   /**
