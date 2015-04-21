@@ -111,7 +111,7 @@
    * @param {Boolean} scrollable Whether content should be scrollable or not
    * (requires JScrollPane)
    */
-  Cluster.prototype.addInfobox = function ( content, closeIcon, boxClass, offset, options, openOn, scrollable ) {
+  Cluster.prototype.addInfobox = function ( content, closeIcon, boxClass, offset, options, openOn, scrollable, closeTimeout ) {
     this.state.infobox = {
       content: content,
       closeIcon: closeIcon,
@@ -119,7 +119,8 @@
       offset: offset,
       options: options,
       openOn: openOn,
-      scrollable: scrollable
+      scrollable: scrollable,
+      closeTimeout: closeTimeout
     };
   };
 

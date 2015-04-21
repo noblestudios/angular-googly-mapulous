@@ -118,8 +118,10 @@
    * or 'click.'  Defaults to hover.
    * @param {Boolean} scrollable Whether content should be scrollable or not
    * (requires JScrollPane)
+   * @param {Mixed} closeTimeout If defined, will automatically close infobox
+   * after the passed timeout in milliseconds
    **/
-  Marker.prototype.addInfobox = function ( content, closeIcon, boxClass, offset, options, openOn, scrollable ) {
+  Marker.prototype.addInfobox = function ( content, closeIcon, boxClass, offset, options, openOn, scrollable, closeTimeout ) {
     // Set up vanilla options
     var infoboxOptions = {
       closeBoxURL: closeIcon ? closeIcon : null,
@@ -189,18 +191,20 @@
         var container = infobox.div_.getElementsByClassName( 'infobox-container' )[ 0 ];
         container.appendChild( this.state.infoboxContent[ 0 ] );
 
-        // Set up close timeout on rendered infobox element
-        infobox.div_.addEventListener( 'mouseenter', function () {
-          if ( typeof( infobox.closeTimer ) == 'number' ) {
-              clearTimeout( infobox.closeTimer );
-          }
-        });
+        // Set up close timeout on rendered infobox element if necessary
+        if ( closeTimeout ) {
+          infobox.div_.addEventListener( 'mouseenter', function () {
+            if ( typeof( infobox.closeTimer ) == 'number' ) {
+                clearTimeout( infobox.closeTimer );
+            }
+          });
 
-        infobox.div_.addEventListener( 'mouseleave', function () {
-          infobox.closeTimer = setTimeout( function () {
-              infobox.close();
-          }, 2 * 1000 );
-        });
+          infobox.div_.addEventListener( 'mouseleave', function () {
+            infobox.closeTimer = setTimeout( function () {
+                infobox.close();
+            }, closeTimeout );
+          });
+        }
 
         // If infobox is scrollable, set up JScrollPane (requires
         // jQuery/JScrollPane).  This also ensures scroll/drag events in the
