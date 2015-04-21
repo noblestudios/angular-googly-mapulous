@@ -1213,6 +1213,22 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
   };
 
   /**
+   * Callback fired just before cluster marker creation.  This function can be
+   * used to return an args object will will override any of the args passed
+   * to the cluster constructor (so this can be used to dynamically update a
+   * cluster marker label for example).
+   *
+   * @param  {Function} callback Callback fired just before cluster marker
+   * creation.  Function is passed the group of markers used to create the
+   * cluster.
+   */
+  Cluster.prototype.onBeforeCreate = function ( callback ) {
+    if ( callback && typeof( callback ) === 'function' ) {
+      this.events.beforeCreate = callback;
+    }
+  };
+
+  /**
    * Register hover functions.  These will be applied to constructed Marker
    * objects as they are created.
    *
@@ -1258,17 +1274,41 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
       if ( groups && groups.length ) {
         groups.forEach( (function ( group ) {
           if ( group.markers.length > 1 ) {
+            var args = {
+              lat: group.centroid.lat,
+              lng: group.centroid.lng,
+              map: this.state.map,
+              icon: this.state.icon,
+              width: this.state.width,
+              height: this.state.height,
+              options: this.state.options,
+              label: this.state.label,
+              data: this.state.data
+            };
+
+            // Check for any new args in beforeCreate callback before creating
+            // marker object
+            if ( this.events.beforeCreate ) {
+              overrides = this.events.beforeCreate( group );
+
+              if ( overrides && Object.keys( overrides ).length ) {
+                Object.keys( overrides ).forEach( function ( key ) {
+                  args[ key ] = overrides[ key ];
+                });
+              }
+            }
+
             // Build a new marker for the cluster
             var clusterMarker = new Marker(
-              group.centroid.lat,
-              group.centroid.lng,
-              this.state.map,
-              this.state.icon,
-              this.state.width,
-              this.state.height,
-              this.state.options,
-              this.state.label,
-              this.state.data
+              args.lat,
+              args.lng,
+              args.map,
+              args.icon,
+              args.width,
+              args.height,
+              args.options,
+              args.label,
+              args.data
             );
 
             // Apply callback functions to new marker if needed
@@ -1282,7 +1322,6 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
 
             // Create infobox for cluster marker if needed
             if ( this.state.infobox ) {
-              console.log( this.state.infobox );
               clusterMarker.addInfobox(
                 this.state.infobox.content,
                 this.state.infobox.closeIcon,
@@ -1574,6 +1613,7 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * @type {Object}
    */
   Cluster.prototype.events = {
+    beforeCreate: null,
     mouseenter: null,
     mouseleave: null,
     click: null
