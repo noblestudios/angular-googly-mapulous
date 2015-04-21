@@ -79,12 +79,14 @@
       if ( ! ( markers instanceof Array ) ) { markers = [ markers ]; }
 
       if ( markers.length ) {
-        markers.forEach( (function ( marker ) {
+        markers.forEach( ( function ( marker ) {
           // Add to physical map
           marker.addToMap( this );
 
-          // And update bookkeeping
-          this.state.markers.push( marker );
+          // And update bookkeeping if necessary
+          if ( this.state.markers.indexOf( marker ) === -1 ) {
+            this.state.markers.push( marker );
+          }
         }).bind( this ));
       }
     } else {

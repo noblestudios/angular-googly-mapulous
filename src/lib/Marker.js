@@ -231,8 +231,10 @@
     // Update internal bookkeeping
     this.state.map = map;
 
-    // Update map's bookkeeping
-    map.state.markers.push( this );
+    // Update map's bookkeeping if necessary
+    if ( map.state.markers.indexOf( this ) === -1 ) {
+      map.state.markers.push( this );
+    }
   };
 
   /**

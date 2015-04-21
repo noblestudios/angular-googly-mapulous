@@ -160,12 +160,14 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
       if ( ! ( markers instanceof Array ) ) { markers = [ markers ]; }
 
       if ( markers.length ) {
-        markers.forEach( (function ( marker ) {
+        markers.forEach( ( function ( marker ) {
           // Add to physical map
           marker.addToMap( this );
 
-          // And update bookkeeping
-          this.state.markers.push( marker );
+          // And update bookkeeping if necessary
+          if ( this.state.markers.indexOf( marker ) === -1 ) {
+            this.state.markers.push( marker );
+          }
         }).bind( this ));
       }
     } else {
@@ -873,8 +875,10 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
     // Update internal bookkeeping
     this.state.map = map;
 
-    // Update map's bookkeeping
-    map.state.markers.push( this );
+    // Update map's bookkeeping if necessary
+    if ( map.state.markers.indexOf( this ) === -1 ) {
+      map.state.markers.push( this );
+    }
   };
 
   /**
@@ -1268,90 +1272,100 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    * finished markers.  Will do nothing if map is not set already.
    **/
   Cluster.prototype.clusterMarkers = function () {
-    if ( this.state.map && this.state.markers.length ) {
+    if ( this.state.map ) {
       // First clear existing list of markers
       this.clearMarkers();
 
-      // Then group markers
-      var groups = this.group();
+      // If there are currently markers, run clustering
+      if ( this.state.markers.length ) {
+        // Make sure we're only grouping visible markers
+        var visibleMarkers = this.state.markers.filter( function ( marker ) {
+          return marker.isVisible();
+        });
 
-      // Process groups of markers
-      if ( groups && groups.length ) {
-        groups.forEach( (function ( group ) {
-          if ( group.markers.length > 1 ) {
-            var args = {
-              lat: group.centroid.lat,
-              lng: group.centroid.lng,
-              map: this.state.map,
-              icon: this.state.icon,
-              width: this.state.width,
-              height: this.state.height,
-              options: this.state.options,
-              label: this.state.label,
-              data: this.state.data
-            };
+        if ( visibleMarkers.length ) {
+          // Then group markers
+          var groups = this.group( visibleMarkers );
 
-            // Check for any new args in beforeCreate callback before creating
-            // marker object
-            if ( this.events.beforeCreate ) {
-              overrides = this.events.beforeCreate( group );
+          // Process groups of markers
+          if ( groups && groups.length ) {
+            groups.forEach( (function ( group ) {
+              if ( group.markers.length > 1 ) {
+                var args = {
+                  lat: group.centroid.lat,
+                  lng: group.centroid.lng,
+                  map: this.state.map,
+                  icon: this.state.icon,
+                  width: this.state.width,
+                  height: this.state.height,
+                  options: this.state.options,
+                  label: this.state.label,
+                  data: this.state.data
+                };
 
-              if ( overrides && Object.keys( overrides ).length ) {
-                Object.keys( overrides ).forEach( function ( key ) {
-                  args[ key ] = overrides[ key ];
-                });
+                // Check for any new args in beforeCreate callback before creating
+                // marker object
+                if ( this.events.beforeCreate ) {
+                  overrides = this.events.beforeCreate( group );
+
+                  if ( overrides && Object.keys( overrides ).length ) {
+                    Object.keys( overrides ).forEach( function ( key ) {
+                      args[ key ] = overrides[ key ];
+                    });
+                  }
+                }
+
+                // Build a new marker for the cluster
+                var clusterMarker = new Marker(
+                  args.lat,
+                  args.lng,
+                  args.map,
+                  args.icon,
+                  args.width,
+                  args.height,
+                  args.options,
+                  args.label,
+                  args.data
+                );
+
+                // Apply callback functions to new marker if needed
+                if ( this.events.mouseenter || this.events.mouseleave ) {
+                  clusterMarker.onHover( this.events.mouseenter, this.events.mouseleave );
+                }
+
+                if ( this.events.click ) {
+                  clusterMarker.onClick( this.events.click );
+                }
+
+                // Create infobox for cluster marker if needed
+                if ( this.state.infobox ) {
+                  clusterMarker.addInfobox(
+                    this.state.infobox.content,
+                    this.state.infobox.closeIcon,
+                    this.state.infobox.boxClass,
+                    this.state.infobox.offset,
+                    this.state.infobox.options,
+                    this.state.infobox.openOn,
+                    this.state.infobox.scrollable
+                  );
+                }
+
+                // Save reference to markers and marker data with object as well
+                clusterMarker.markerData = group.data;
+                clusterMarker.markers    = group.markers;
+
+                // And push the new cluster marker
+                this.state.currentMarkers.push( clusterMarker );
+              } else {
+                // Well this is easy, just use stock marker
+                this.state.currentMarkers.push( group.markers[ 0 ] );
               }
-            }
+            }).bind( this ));
 
-            // Build a new marker for the cluster
-            var clusterMarker = new Marker(
-              args.lat,
-              args.lng,
-              args.map,
-              args.icon,
-              args.width,
-              args.height,
-              args.options,
-              args.label,
-              args.data
-            );
-
-            // Apply callback functions to new marker if needed
-            if ( this.events.mouseenter || this.events.mouseleave ) {
-              clusterMarker.onHover( this.events.mouseenter, this.events.mouseleave );
-            }
-
-            if ( this.events.click ) {
-              clusterMarker.onClick( this.events.click );
-            }
-
-            // Create infobox for cluster marker if needed
-            if ( this.state.infobox ) {
-              clusterMarker.addInfobox(
-                this.state.infobox.content,
-                this.state.infobox.closeIcon,
-                this.state.infobox.boxClass,
-                this.state.infobox.offset,
-                this.state.infobox.options,
-                this.state.infobox.openOn,
-                this.state.infobox.scrollable
-              );
-            }
-
-            // Save reference to markers and marker data with object as well
-            clusterMarker.markerData = group.data;
-            clusterMarker.markers    = group.markers;
-
-            // And push the new cluster marker
-            this.state.currentMarkers.push( clusterMarker );
-          } else {
-            // Well this is easy, just use stock marker
-            this.state.currentMarkers.push( group.markers[ 0 ] );
+            // Now all the markers are built, place them on the map
+            this.displayClusterMarkers();
           }
-        }).bind( this ));
-
-        // Now all the markers are built, place them on the map
-        this.displayClusterMarkers();
+        }
       }
     } else {
       console.error( 'Map must be set before calling Cluster.clusterMarkers' );
@@ -1381,6 +1395,31 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
       this.clusterMarkers();
     } else {
       console.error( 'Invalid Marker object/array passed to GoogleMap.addMarkers' );
+    }
+  };
+
+  /**
+   * Remove markers from the cluster and update clustering.
+   **/
+  Cluster.prototype.removeMarkers = function ( markers ) {
+    if (
+      this.state.map &&
+      this.state.markers &&
+      this.state.markers.length
+    ) {
+      markers.forEach( ( function ( marker ) {
+        this.removeMarker( marker );
+      }).bind( this ));
+
+      this.clusterMarkers();
+    }
+  };
+
+  Cluster.prototype.removeMarker = function ( marker ) {
+    var index = this.state.markers.indexOf( marker )
+
+    if ( index > -1 ) {
+      this.state.markers.splice( index, 1 );
     }
   };
 
