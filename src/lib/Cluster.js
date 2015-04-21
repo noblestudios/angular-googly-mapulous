@@ -474,12 +474,16 @@
    *   15: 800, // Past level 15 markers aren't grouped
    *   default: 10000 // For really zoomed out levels, > 8
    * }
+   * Either a full mapping can be passed in or a partial mapping and it will be
+   * rolled into the existing mapping.
    *
    * @param {Object} mapping Mapping object following format in description
    **/
   Cluster.prototype.setClusterZoomMapping = function ( mapping ) {
-    if ( mapping ) {
-      this.config.clusterMapping = mapping;
+    if ( mapping && Object.keys( mapping ).length ) {
+      Object.keys( mapping ).forEach( ( function ( level ) {
+        this.config.clusterMapping[ level ] = mapping[ level ];
+      }).bind( this ));
     } else {
       console.error( 'Valid zoom mapping object must be passed to Cluster.setClusterZoomMapping' );
     }
