@@ -302,7 +302,9 @@
   };
 
   /**
-   * Remove markers from the cluster and update clustering.
+   * Remove markers from the cluster and updates clustering.
+   *
+   * @param {Array} markers Markers to remove from cluster
    **/
   Cluster.prototype.removeMarkers = function ( markers ) {
     if (
@@ -337,11 +339,23 @@
       this.state.currentMarkers.length
     ) {
       // Remove from the map
-      this.state.map.removeMarkers( this.state.currentMarkers );
+      this.state.currentMarkers.forEach( function ( marker ) {
+        marker.remove();
+      });
 
       // Then empty the currentMarkers array
       this.state.currentMarkers = [];
     }
+  };
+
+  /**
+   * Remove all displayed markers and clear the internal array of markers.
+   */
+  Cluster.prototype.resetCluster = function () {
+    this.clearMarkers();
+
+    // Clear the internal list of markers
+    this.state.markers = [];
   };
 
   /**
