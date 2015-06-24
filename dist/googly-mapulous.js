@@ -1238,6 +1238,19 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
   };
 
   /**
+   * Callback fired after the current set of display markers has been set on
+   * the map (rendered).
+   *
+   * @param  {Function} callback Callback fired just after display markers are
+   * rendered
+   */
+  Cluster.prototype.onRender = function ( callback ) {
+    if ( callback && typeof( callback ) === 'function' ) {
+      this.events.render = callback;
+    }
+  };
+
+  /**
    * Register hover functions.  These will be applied to constructed Marker
    * objects as they are created.
    *
@@ -1465,6 +1478,11 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
       this.state.currentMarkers.length
     ) {
       this.state.map.addMarkers( this.state.currentMarkers );
+
+      // If render event is set, fire it with the set of displayed markers
+      if ( this.events.render ) {
+        this.events.render( this.state.currentMarkers );
+      }
     }
   };
 
@@ -1676,6 +1694,7 @@ angular.module( 'googlyMapulous' ).provider( 'googleMaps', [ function () {
    */
   Cluster.prototype.events = {
     beforeCreate: null,
+    render: null,
     mouseenter: null,
     mouseleave: null,
     click: null
