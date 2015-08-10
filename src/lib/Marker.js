@@ -384,6 +384,17 @@
   };
 
   /**
+   * Update internal data on the marker.  This can be anything related to the
+   * marker and will be saved with the marker.  Will also be available to any
+   * controllers attached to infoboxes on the marker.
+   *
+   * @param {Mixed} data Data to set with the marker
+   */
+  Marker.prototype.setData = function ( data ) {
+    this.state.data = this.state.marker.data = data;
+  };
+
+  /**
    * Check if Marker is currently assigned to a map.
    *
    * @return {Boolean} Returns true if Marker is attached to a map

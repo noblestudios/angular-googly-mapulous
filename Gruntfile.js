@@ -90,7 +90,8 @@ module.exports = function ( grunt ) {
     'concat:provider',
     'concat:build',
     'uglify:build',
-    'clean:postbuild'
+    'clean:postbuild',
+    'doxx'
   ];
 
   grunt.registerTask( 'build', buildTasks );

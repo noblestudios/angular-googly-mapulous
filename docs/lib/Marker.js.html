@@ -108,6 +108,8 @@
               </li>
               <li><a href="#addEvent"><i class="alert alert-info"></i><span>addEvent</span></a>
               </li>
+              <li><a href="#setData"><i class="alert alert-info"></i><span>setData</span></a>
+              </li>
               <li><a href="#hasMap"><i class="alert alert-info"></i><span>hasMap</span></a>
               </li>
               <li><a href="#isVisible"><i class="alert alert-info"></i><span>isVisible</span></a>
@@ -697,6 +699,33 @@
   } else {
     console.error( 'Invalid params passed to Marker.addEvent' );
   }
+};</code></pre>
+          <section id="setData">
+            <h1>setData</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Marker.prototype.setData()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>data</td>
+                <td>Mixed</td>
+                <td><p>Data to set with the marker</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Update internal data on the marker.  This can be anything related to the<br />marker and will be saved with the marker.  Will also be available to any<br />controllers attached to infoboxes on the marker.</p> </div>
+          <pre><code class="language-javascript">Marker.prototype.setData = function ( data ) {
+  this.state.data = this.state.marker.data = data;
 };</code></pre>
           <section id="hasMap">
             <h1>hasMap</h1>
