@@ -108,6 +108,10 @@
               </li>
               <li><a href="#addEvent"><i class="alert alert-info"></i><span>addEvent</span></a>
               </li>
+              <li><a href="#hasMap"><i class="alert alert-info"></i><span>hasMap</span></a>
+              </li>
+              <li><a href="#isVisible"><i class="alert alert-info"></i><span>isVisible</span></a>
+              </li>
               <li><a href="#config"><i class="alert alert-success"></i><span>config</span></a>
               </li>
               <li><a href="#state"><i class="alert alert-success"></i><span>state</span></a>
@@ -122,7 +126,7 @@
             <h1>Marker</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">function</div><span>Marker()</span> -><span>Object</span>
+              <div class="label label-info radius ctx-type">function</div><span>Marker()</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -182,7 +186,7 @@
               <tr>
                 <td>return</td>
                 <td>Object</td>
-                <td></td>
+                <td><p>Returns constructed Marker object</p></td>
               </tr>
             </tbody>
           </table>
@@ -258,7 +262,7 @@
             <h1>getMarker</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>Marker.prototype.getMarker()</span> -><span>Object</span>
+              <div class="label label-info radius ctx-type">method</div><span>Marker.prototype.getMarker()</span>
             </p>
           </section>
           <div class="description"><p>Retrieve the physical google map marker.  Useful if you really want to get<br />your hands dirty.</p> </div>
@@ -316,10 +320,15 @@
                 <td>Boolean</td>
                 <td><p>Whether content should be scrollable or not (requires JScrollPane)</p></td>
               </tr>
+              <tr>
+                <td>closeTimeout</td>
+                <td>Mixed</td>
+                <td><p>If defined, will automatically close infobox after the passed timeout in milliseconds</p></td>
+              </tr>
             </tbody>
           </table>
           <div class="description"><p>Create new InfoBox and link it to the Marker.  Note that this only creates<br />the infobox - it still has to be tied to a separate event to be used. Note<br />that no params are required here, but oftentimes you won&#39;t set any infobox<br />options/content until the box is actually used.</p> </div>
-          <pre><code class="language-javascript">Marker.prototype.addInfobox = function ( content, closeIcon, boxClass, offset, options, openOn, scrollable ) {
+          <pre><code class="language-javascript">Marker.prototype.addInfobox = function ( content, closeIcon, boxClass, offset, options, openOn, scrollable, closeTimeout ) {
   // Set up vanilla options
   var infoboxOptions = {
     closeBoxURL: closeIcon ? closeIcon : null,
@@ -389,18 +398,20 @@
       var container = infobox.div_.getElementsByClassName( 'infobox-container' )[ 0 ];
       container.appendChild( this.state.infoboxContent[ 0 ] );
 
-      // Set up close timeout on rendered infobox element
-      infobox.div_.addEventListener( 'mouseenter', function () {
-        if ( typeof( infobox.closeTimer ) == 'number' ) {
-            clearTimeout( infobox.closeTimer );
-        }
-      });
+      // Set up close timeout on rendered infobox element if necessary
+      if ( closeTimeout ) {
+        infobox.div_.addEventListener( 'mouseenter', function () {
+          if ( typeof( infobox.closeTimer ) == 'number' ) {
+              clearTimeout( infobox.closeTimer );
+          }
+        });
 
-      infobox.div_.addEventListener( 'mouseleave', function () {
-        infobox.closeTimer = setTimeout( function () {
-            infobox.close();
-        }, 2 * 1000 );
-      });
+        infobox.div_.addEventListener( 'mouseleave', function () {
+          infobox.closeTimer = setTimeout( function () {
+              infobox.close();
+          }, closeTimeout );
+        });
+      }
 
       // If infobox is scrollable, set up JScrollPane (requires
       // jQuery/JScrollPane).  This also ensures scroll/drag events in the
@@ -442,8 +453,13 @@
           <pre><code class="language-javascript">Marker.prototype.addToMap = function ( map ) {
   this.state.marker.setMap( map.state.map );
 
-  // Update bookkeeping
+  // Update internal bookkeeping
   this.state.map = map;
+
+  // Update map's bookkeeping if necessary
+  if ( map.state.markers.indexOf( this ) === -1 ) {
+    map.state.markers.push( this );
+  }
 };</code></pre>
           <section id="remove">
             <h1>remove</h1>
@@ -454,9 +470,20 @@
           </section>
           <div class="description"><p>Clear marker.  This sets the internal marker to null (so this object still<br />needs to be deleted separately).</p> </div>
           <pre><code class="language-javascript">Marker.prototype.remove = function () {
+  // Update map's bookkeeping first
+  if ( this.state.map &amp;&amp; this.state.map.markers &amp;&amp; this.state.map.markers.length ) {
+    for ( var i = this.state.map.markers.length; i &gt; 0; i-- ) {
+      if ( this.state.map.markers[ i ] === this ) {
+        // Update the internal array
+        this.state.map.markers.splice( i, 1 );
+      }
+    }
+  }
+
+  // Then null out the map
   this.state.marker.setMap( null );
 
-  // Make sure to null out the map object
+  // And update internal bookkeeping
   this.state.map = null;
 };</code></pre>
           <section id="show">
@@ -468,7 +495,10 @@
           </section>
           <div class="description"><p>Show marker again.  This only works if the marker was hidden instead of<br />deleted (still has its internal reference to the map intact).</p> </div>
           <pre><code class="language-javascript">Marker.prototype.show = function () {
-  if ( this.state.map ) { this.state.marker.setMap( this.state.map.state.map ) };
+  if ( this.state.map ) {
+    this.state.marker.setMap( this.state.map.state.map );
+    this.state.visible = true;
+  };
 };</code></pre>
           <section id="hide">
             <h1>hide</h1>
@@ -480,6 +510,7 @@
           <div class="description"><p>Hide the marker.  Same idea as removing it, but does not null the map out<br />in case you need it back.</p> </div>
           <pre><code class="language-javascript">Marker.prototype.hide = function () {
   this.state.marker.setMap( null );
+  this.state.visible = false;
 };</code></pre>
           <section id="openInfobox">
             <h1>openInfobox</h1>
@@ -522,16 +553,36 @@
             </thead>
             <tbody>
               <tr>
-                <td>callback</td>
+                <td>overCallback</td>
                 <td>Function</td>
-                <td><p>Function to call when even is triggered</p></td>
+                <td><p>Function to call on over event. Will be passed the event and label element if available.</p></td>
+              </tr>
+              <tr>
+                <td>leaveCallback</td>
+                <td>Function</td>
+                <td><p>Function to call on leave event. Will be passed the event and label element if available.</p></td>
               </tr>
             </tbody>
           </table>
           <div class="description"><p>Custom hover functionality.  Will fire callback for specified event (along<br />with internal functions for same event as needed).</p> </div>
-          <pre><code class="language-javascript">Marker.prototype.onHover = function ( callback ) {
-  if ( callback &amp;&amp; typeof( callback ) === 'function' ) {
-    this.addEvent( 'mouseover', callback );
+          <pre><code class="language-javascript">Marker.prototype.onHover = function ( overCallback, leaveCallback ) {
+  var labelDiv = null;
+  var eventDiv = null;
+
+  if ( this.state.marker.label ) {
+    labelDiv = this.state.marker.label.labelDiv_;
+    eventDiv = this.state.marker.label.eventDiv_;
+  }
+
+  if ( overCallback &amp;&amp; typeof( overCallback ) === 'function' ) {
+    this.addEvent( 'mouseenter', (function ( event ) {
+      overCallback.call( this, event, labelDiv, eventDiv );
+    }).bind( this ));
+  }
+  if ( leaveCallback &amp;&amp; typeof( leaveCallback ) === 'function' ) {
+    this.addEvent( 'mouseleave', (function ( event ) {
+      leaveCallback.call( this, event, labelDiv, eventDiv );
+    }).bind( this ));
   }
 };</code></pre>
           <section id="onClick">
@@ -553,14 +604,24 @@
               <tr>
                 <td>callback</td>
                 <td>Function</td>
-                <td><p>Function to call when even is triggered</p></td>
+                <td><p>Function to call when even is triggered. Will be passed event and label element if available.</p></td>
               </tr>
             </tbody>
           </table>
           <div class="description"><p>Custom click functionality.  Will fire callback for specified event (along<br />with internal functions for same event as needed).</p> </div>
           <pre><code class="language-javascript">Marker.prototype.onClick = function ( callback ) {
+  var labelDiv = null;
+  var eventDiv = null;
+
+  if ( this.state.marker.label ) {
+    labelDiv = this.state.marker.label.labelDiv_;
+    eventDiv = this.state.marker.label.eventDiv_;
+  }
+
   if ( callback &amp;&amp; typeof( callback ) === 'function' ) {
-    this.addEvent( 'click', callback );
+    this.addEvent( 'click', (function ( event ) {
+      callback.call( this, event, labelDiv, eventDiv );
+    }).bind( this ));
   }
 };</code></pre>
           <section id="onInfoboxReady">
@@ -637,6 +698,28 @@
     console.error( 'Invalid params passed to Marker.addEvent' );
   }
 };</code></pre>
+          <section id="hasMap">
+            <h1>hasMap</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Marker.prototype.hasMap()</span>
+            </p>
+          </section>
+          <div class="description"><p>Check if Marker is currently assigned to a map.</p> </div>
+          <pre><code class="language-javascript">Marker.prototype.hasMap = function () {
+  return this.state.map ? true : false;
+};</code></pre>
+          <section id="isVisible">
+            <h1>isVisible</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Marker.prototype.isVisible()</span>
+            </p>
+          </section>
+          <div class="description"><p>Return whether or not the Marker is currently visible.</p> </div>
+          <pre><code class="language-javascript">Marker.prototype.isVisible = function () {
+  return this.state.visible;
+};</code></pre>
           <section id="config">
             <h1>config</h1>
             <h5 class="subheader"></h5>
@@ -666,7 +749,8 @@
   marker: null,
   data: null,
   infobox: null,
-  infoboxContent: null
+  infoboxContent: null,
+  visible: true
 };</code></pre>
           <section id="errors">
             <h1>errors</h1>

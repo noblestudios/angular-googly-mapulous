@@ -82,6 +82,8 @@
           </ul>
           <div class="scrollspy">
             <ul class="nav nav-list bs-docs-sidenav affix-top">
+              <li><a href="#initMap"><i class="alert alert-info"></i><span>initMap</span></a>
+              </li>
             </ul>
           </div>
         </div>
@@ -91,23 +93,51 @@
   return {
     restrict: 'E',
     template: '&lt;div class=&quot;google-map-container&quot;&gt;&lt;div class=&quot;google-map&quot;&gt;&lt;/div&gt;&lt;/div&gt;',
-    controller: [ '$scope', '$element', '$compile', function ( $scope, $element, $compile ) {
-      // Set basic map config up
-      // These can be overridden by config options contained in
-      // $scope.mapConfig
-      var options = {};
-      if ( $scope.mapConfig &amp;&amp; $scope.mapConfig instanceof Object ) {
-        Object.keys( $scope.mapConfig ).forEach( function ( key ) {
-          options[ key ] = $scope.mapConfig[ key ];
+    controller: [ '$scope', '$element', '$compile', '$attrs', function ( $scope, $element, $compile, $attrs ) {
+      // Check for presence of manual init var in $scope.  Wait for manual call
+      // before initting if set, otherwise create the map immediately
+      if ( $scope.mapManualInit || typeof( $attrs.manualInit ) !== 'undefined' ) {
+        var unsubscribe = $scope.$on( 'initializeGoogleMap', function () {
+          initMap();
+
+          unsubscribe();
         });
+      } else {
+        initMap();
       }
 
-      // Build the map and save a reference to the created map object in the
-      // $scope for reference later from controller
-      $scope.googleMap = new googleMaps.GoogleMap( $element.find( '.google-map' )[0], $scope, $compile, options );
+      /////////////////////////////////////////////////////////////////////////////
+      // Internal functions ///////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////</code></pre>
+          <section id="initMap">
+            <h1>initMap</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">function</div><span>initMap()</span>
+            </p>
+          </section>
+          <div class="description"><p>Load the map (create the actual google map object).  Fire loaded event<br />when finished.</p> </div>
+          <pre><code class="language-javascript">function initMap () {
+  // Set basic map config up
+  // These can be overridden by config options contained in
+  // $scope.mapConfig
+  var options = {};
+  if ( $scope.mapConfig &amp;&amp; $scope.mapConfig instanceof Object ) {
+    Object.keys( $scope.mapConfig ).forEach( function ( key ) {
+      options[ key ] = $scope.mapConfig[ key ];
+    });
+  }
 
-      // Fire event at the point so the outer control knows we're done
-      $scope.$emit( 'googleMapLoaded', $scope.googleMap );
+  // Build the map and save a reference to the created map object in the
+  // $scope for reference later from controller
+  $scope.googleMap = new googleMaps.GoogleMap( $element[ 0 ].children[ 0 ].children[ 0 ], $scope, $compile, options );
+
+  // Fire event at the point so the outer control knows we're done
+  $scope.$emit( 'googleMapLoaded', $scope.googleMap );
+
+  // Also set a scope variable for checking map loaded status
+  $scope.mapLoaded = true;
+}
     }]
   };
 }]);</code></pre>

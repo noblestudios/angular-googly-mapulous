@@ -90,11 +90,25 @@
               </li>
               <li><a href="#setMap"><i class="alert alert-info"></i><span>setMap</span></a>
               </li>
+              <li><a href="#addInfobox"><i class="alert alert-info"></i><span>addInfobox</span></a>
+              </li>
+              <li><a href="#onBeforeCreate"><i class="alert alert-info"></i><span>onBeforeCreate</span></a>
+              </li>
+              <li><a href="#onRender"><i class="alert alert-info"></i><span>onRender</span></a>
+              </li>
+              <li><a href="#onHover"><i class="alert alert-info"></i><span>onHover</span></a>
+              </li>
+              <li><a href="#onClick"><i class="alert alert-info"></i><span>onClick</span></a>
+              </li>
               <li><a href="#clusterMarkers"><i class="alert alert-info"></i><span>clusterMarkers</span></a>
               </li>
               <li><a href="#addMarkers"><i class="alert alert-info"></i><span>addMarkers</span></a>
               </li>
+              <li><a href="#removeMarkers"><i class="alert alert-info"></i><span>removeMarkers</span></a>
+              </li>
               <li><a href="#clearMarkers"><i class="alert alert-info"></i><span>clearMarkers</span></a>
+              </li>
+              <li><a href="#resetCluster"><i class="alert alert-info"></i><span>resetCluster</span></a>
               </li>
               <li><a href="#displayClusterMarkers"><i class="alert alert-info"></i><span>displayClusterMarkers</span></a>
               </li>
@@ -112,6 +126,8 @@
               </li>
               <li><a href="#state"><i class="alert alert-success"></i><span>state</span></a>
               </li>
+              <li><a href="#events"><i class="alert alert-success"></i><span>events</span></a>
+              </li>
               <li><a href="#errors"><i class="alert alert-success"></i><span>errors</span></a>
               </li>
             </ul>
@@ -122,7 +138,7 @@
             <h1>Cluster</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">function</div><span>Cluster()</span> -><span>Object</span>
+              <div class="label label-info radius ctx-type">function</div><span>Cluster()</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -172,18 +188,20 @@
               <tr>
                 <td>return</td>
                 <td>Object</td>
-                <td></td>
+                <td><p>Returns constructed Cluster object</p></td>
               </tr>
             </tbody>
           </table>
           <div class="description"><p>Create a new cluster in the specified map with the specified master list<br />of markers.</p> </div>
           <pre><code class="language-javascript">var Cluster = function ( markers, map, icon, width, height, options, label, data ) {
-  if ( markers &amp;&amp; markers.length &amp;&amp; google.maps.geometry ) {
+  if ( google.maps.geometry ) {
     // Make sure this has a unique copy of the state object
     this.state = JSON.parse(JSON.stringify( this.state ));
 
+    // As well as the events object
+    this.events = JSON.parse(JSON.stringify( this.events ));
+
     // Update internal state with passed params
-    this.state.markers = markers;
     this.state.icon    = icon;
     this.state.width   = width;
     this.state.height  = height,
@@ -191,13 +209,16 @@
     this.state.label   = label;
     this.state.data    = data;
 
+    // Add any initial markers passed in
+    if ( markers &amp;&amp; markers.length ) { this.state.markers = markers; }
+
     // If map was passed, attach to map immediately and start clustering
     if ( map ) { this.setMap( map ); }
 
     // And back we go
     return this;
   } else {
-    this.errors.init( markers );
+    this.errors.init();
   }
 
   // Something didn't go right
@@ -207,7 +228,7 @@
             <h1>getMarkers</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getMarkers()</span> -><span>Array</span>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getMarkers()</span>
             </p>
           </section>
           <div class="description"><p>Retrieve all markers currently in the cluster (displayed or not).</p> </div>
@@ -218,7 +239,7 @@
             <h1>getActiveMarkers</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getActiveMarkers()</span> -><span>Array</span>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getActiveMarkers()</span>
             </p>
           </section>
           <div class="description"><p>Retrieve currently-displayed markers in cluster.</p> </div>
@@ -256,13 +277,208 @@
 
     // Bind clustering to map zoom event
     map.addEvent( 'zoom_changed', debounce(( function ( event ) {
-      this.clusterMarkers();
+      if ( this.state.markers.length ) {
+        this.clusterMarkers();
+      }
     }).bind( this ), 150 ));
 
-    // And start clustering immediately
-    this.clusterMarkers();
+    // And start clustering immediately if we also have markers
+    if ( this.state.markers.length ) {
+      this.clusterMarkers();
+    }
   } else {
     console.error( 'Invalid map object passed to Cluster.setMap' );
+  }
+};</code></pre>
+          <section id="addInfobox">
+            <h1>addInfobox</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.addInfobox()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>content</td>
+                <td>String</td>
+                <td><p>Infobox content - can be HTML (optional)</p></td>
+              </tr>
+              <tr>
+                <td>closeIcon</td>
+                <td>String</td>
+                <td><p>Path to close icon to use for infobox (optional)</p></td>
+              </tr>
+              <tr>
+                <td>boxClass</td>
+                <td>String</td>
+                <td><p>Custom container class to apply to infobox (optional)</p></td>
+              </tr>
+              <tr>
+                <td>offset</td>
+                <td>Object</td>
+                <td><p>Object containing x and y offset coordinates from infobox marker (optional)</p></td>
+              </tr>
+              <tr>
+                <td>options</td>
+                <td>Object</td>
+                <td><p>Additional custom options to pass into InfoBox constructor</p></td>
+              </tr>
+              <tr>
+                <td>openOn</td>
+                <td>String</td>
+                <td><p>Event to open infobox on. Can be either &#39;hover&#39; or &#39;click.&#39;  Defaults to hover.</p></td>
+              </tr>
+              <tr>
+                <td>scrollable</td>
+                <td>Boolean</td>
+                <td><p>Whether content should be scrollable or not (requires JScrollPane)</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Register an infobox for cluster markers.  This will be instantiated when<br />each cluster marker is created and has the same arguments as the Marker<br />flavor of this.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.addInfobox = function ( content, closeIcon, boxClass, offset, options, openOn, scrollable, closeTimeout ) {
+  this.state.infobox = {
+    content: content,
+    closeIcon: closeIcon,
+    boxClass: boxClass,
+    offset: offset,
+    options: options,
+    openOn: openOn,
+    scrollable: scrollable,
+    closeTimeout: closeTimeout
+  };
+};</code></pre>
+          <section id="onBeforeCreate">
+            <h1>onBeforeCreate</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.onBeforeCreate()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>callback</td>
+                <td>Function</td>
+                <td><p>Callback fired just before cluster marker creation.  Function is passed the group of markers used to create the<br />cluster.</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Callback fired just before cluster marker creation.  This function can be<br />used to return an args object will will override any of the args passed<br />to the cluster constructor (so this can be used to dynamically update a<br />cluster marker label for example).</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.onBeforeCreate = function ( callback ) {
+  if ( callback &amp;&amp; typeof( callback ) === 'function' ) {
+    this.events.beforeCreate = callback;
+  }
+};</code></pre>
+          <section id="onRender">
+            <h1>onRender</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.onRender()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>callback</td>
+                <td>Function</td>
+                <td><p>Callback fired just after display markers are rendered</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Callback fired after the current set of display markers has been set on<br />the map (rendered).</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.onRender = function ( callback ) {
+  if ( callback &amp;&amp; typeof( callback ) === 'function' ) {
+    this.events.render = callback;
+  }
+};</code></pre>
+          <section id="onHover">
+            <h1>onHover</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.onHover()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>overCallback</td>
+                <td>Function</td>
+                <td><p>Function called on mouseenter</p></td>
+              </tr>
+              <tr>
+                <td>leaveCallback</td>
+                <td>Function</td>
+                <td><p>Function called on mouseleave</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Register hover functions.  These will be applied to constructed Marker<br />objects as they are created.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.onHover = function ( overCallback, leaveCallback ) {
+  if ( overCallback &amp;&amp; typeof( overCallback ) === 'function' ) {
+    this.events.mouseenter = overCallback;
+  }
+
+  if ( leaveCallback &amp;&amp; typeof( leaveCallback ) === 'function' ) {
+    this.events.mouseleave = leaveCallback;
+  }
+};</code></pre>
+          <section id="onClick">
+            <h1>onClick</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.onClick()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>callback</td>
+                <td>Function</td>
+                <td><p>Function called on click</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Register click function.  This will be applied to constructed Marker<br />objects as they are created.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.onClick = function ( callback ) {
+  if ( callback &amp;&amp; typeof( callback ) === 'function' ) {
+    this.events.click = callback;
   }
 };</code></pre>
           <section id="clusterMarkers">
@@ -278,40 +494,96 @@
     // First clear existing list of markers
     this.clearMarkers();
 
-    // Then group markers
-    var groups = this.group();
+    // If there are currently markers, run clustering
+    if ( this.state.markers.length ) {
+      // Make sure we're only grouping visible markers
+      var visibleMarkers = this.state.markers.filter( function ( marker ) {
+        return marker.isVisible();
+      });
 
-    // Process groups of markers
-    if ( groups &amp;&amp; groups.length ) {
-      groups.forEach( (function ( group ) {
-        if ( group.markers.length &gt; 1 ) {
-          // Build a new marker for the cluster
-          var clusterMarker = new Marker(
-            group.centroid.lat,
-            group.centroid.lng,
-            null,
-            this.state.icon,
-            this.state.width,
-            this.state.height,
-            this.state.options,
-            this.state.label,
-            this.state.data
-          );
+      if ( visibleMarkers.length ) {
+        // Then group markers
+        var groups = this.group( visibleMarkers );
 
-          // Save reference to markers and marker data with object as well
-          clusterMarker.markerData = group.data;
-          clusterMarker.markers    = group.markers;
+        // Process groups of markers
+        if ( groups &amp;&amp; groups.length ) {
+          groups.forEach( (function ( group ) {
+            if ( group.markers.length &gt; 1 ) {
+              var args = {
+                lat: group.centroid.lat,
+                lng: group.centroid.lng,
+                map: this.state.map,
+                icon: this.state.icon,
+                width: this.state.width,
+                height: this.state.height,
+                options: this.state.options,
+                label: this.state.label,
+                data: this.state.data
+              };
 
-          // And push the new cluster marker
-          this.state.currentMarkers.push( clusterMarker );
-        } else {
-          // Well this is easy, just use stock marker
-          this.state.currentMarkers.push( group.markers[ 0 ] );
+              // Check for any new args in beforeCreate callback before creating
+              // marker object
+              if ( this.events.beforeCreate ) {
+                overrides = this.events.beforeCreate( group );
+
+                if ( overrides &amp;&amp; Object.keys( overrides ).length ) {
+                  Object.keys( overrides ).forEach( function ( key ) {
+                    args[ key ] = overrides[ key ];
+                  });
+                }
+              }
+
+              // Build a new marker for the cluster
+              var clusterMarker = new Marker(
+                args.lat,
+                args.lng,
+                args.map,
+                args.icon,
+                args.width,
+                args.height,
+                args.options,
+                args.label,
+                args.data
+              );
+
+              // Apply callback functions to new marker if needed
+              if ( this.events.mouseenter || this.events.mouseleave ) {
+                clusterMarker.onHover( this.events.mouseenter, this.events.mouseleave );
+              }
+
+              if ( this.events.click ) {
+                clusterMarker.onClick( this.events.click );
+              }
+
+              // Create infobox for cluster marker if needed
+              if ( this.state.infobox ) {
+                clusterMarker.addInfobox(
+                  this.state.infobox.content,
+                  this.state.infobox.closeIcon,
+                  this.state.infobox.boxClass,
+                  this.state.infobox.offset,
+                  this.state.infobox.options,
+                  this.state.infobox.openOn,
+                  this.state.infobox.scrollable
+                );
+              }
+
+              // Save reference to markers and marker data with object as well
+              clusterMarker.markerData = group.data;
+              clusterMarker.markers    = group.markers;
+
+              // And push the new cluster marker
+              this.state.currentMarkers.push( clusterMarker );
+            } else {
+              // Well this is easy, just use stock marker
+              this.state.currentMarkers.push( group.markers[ 0 ] );
+            }
+          }).bind( this ));
+
+          // Now all the markers are built, place them on the map
+          this.displayClusterMarkers();
         }
-      }).bind( this ));
-
-      // Now all the markers are built, place them on the map
-      this.displayClusterMarkers();
+      }
     }
   } else {
     console.error( 'Map must be set before calling Cluster.clusterMarkers' );
@@ -359,6 +631,51 @@
     console.error( 'Invalid Marker object/array passed to GoogleMap.addMarkers' );
   }
 };</code></pre>
+          <section id="removeMarkers">
+            <h1>removeMarkers</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.removeMarkers()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>markers</td>
+                <td>Array</td>
+                <td><p>Markers to remove from cluster</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Remove markers from the cluster and updates clustering.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.removeMarkers = function ( markers ) {
+  if (
+    this.state.map &amp;&amp;
+    this.state.markers &amp;&amp;
+    this.state.markers.length
+  ) {
+    markers.forEach( ( function ( marker ) {
+      this.removeMarker( marker );
+    }).bind( this ));
+
+    this.clusterMarkers();
+  }
+};
+
+Cluster.prototype.removeMarker = function ( marker ) {
+  var index = this.state.markers.indexOf( marker )
+
+  if ( index &gt; -1 ) {
+    this.state.markers.splice( index, 1 );
+  }
+};</code></pre>
           <section id="clearMarkers">
             <h1>clearMarkers</h1>
             <h5 class="subheader"></h5>
@@ -374,11 +691,27 @@
     this.state.currentMarkers.length
   ) {
     // Remove from the map
-    this.state.map.removeMarkers( this.state.currentMarkers );
+    this.state.currentMarkers.forEach( function ( marker ) {
+      marker.remove();
+    });
 
     // Then empty the currentMarkers array
     this.state.currentMarkers = [];
   }
+};</code></pre>
+          <section id="resetCluster">
+            <h1>resetCluster</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.resetCluster()</span>
+            </p>
+          </section>
+          <div class="description"><p>Remove all displayed markers and clear the internal array of markers.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.resetCluster = function () {
+  this.clearMarkers();
+
+  // Clear the internal list of markers
+  this.state.markers = [];
 };</code></pre>
           <section id="displayClusterMarkers">
             <h1>displayClusterMarkers</h1>
@@ -395,6 +728,11 @@
     this.state.currentMarkers.length
   ) {
     this.state.map.addMarkers( this.state.currentMarkers );
+
+    // If render event is set, fire it with the set of displayed markers
+    if ( this.events.render ) {
+      this.events.render( this.state.currentMarkers );
+    }
   }
 };</code></pre>
           <section id="group">
@@ -479,7 +817,7 @@
             <h1>findMarkerGroups</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.findMarkerGroups()</span> -><span>Array</span>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.findMarkerGroups()</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -509,7 +847,7 @@
               <tr>
                 <td>return</td>
                 <td>Array</td>
-                <td></td>
+                <td><p>Returns array of marker groups</p></td>
               </tr>
             </tbody>
           </table>
@@ -536,7 +874,7 @@
             <h1>findMarkerNeighbors</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.findMarkerNeighbors()</span> -><span>Array</span>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.findMarkerNeighbors()</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -566,7 +904,7 @@
               <tr>
                 <td>return</td>
                 <td>Array</td>
-                <td></td>
+                <td><p>Returns finished group array</p></td>
               </tr>
             </tbody>
           </table>
@@ -598,7 +936,7 @@
             <h1>getGroupingDistance</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getGroupingDistance()</span> -><span>Integer</span>
+              <div class="label label-info radius ctx-type">method</div><span>Cluster.prototype.getGroupingDistance()</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -618,7 +956,7 @@
               <tr>
                 <td>return</td>
                 <td>Integer</td>
-                <td></td>
+                <td><p>Returns grouping distance from config if matched or 0 if unable to find match</p></td>
               </tr>
             </tbody>
           </table>
@@ -653,10 +991,12 @@
               </tr>
             </tbody>
           </table>
-          <div class="description"><p>Set the zoom mapping for the cluster.  This is the clustering distance in<br />meters for each zoom level.  Note that lower zoom numbers are zoomed out.<br />Ex. config:<br />{<br />  8: 6000,<br />  9: 4500,<br />  10: 3000,<br />  11: 2500,<br />  12: 1500,<br />  13: 1500,<br />  14: 1000,<br />  15: 800, // Past level 15 markers aren&#39;t grouped<br />  default: 10000 // For really zoomed out levels, &gt; 8<br />}</p> </div>
+          <div class="description"><p>Set the zoom mapping for the cluster.  This is the clustering distance in<br />meters for each zoom level.  Note that lower zoom numbers are zoomed out.<br />Ex. config:<br />{<br />  8: 6000,<br />  9: 4500,<br />  10: 3000,<br />  11: 2500,<br />  12: 1500,<br />  13: 1500,<br />  14: 1000,<br />  15: 800, // Past level 15 markers aren&#39;t grouped<br />  default: 10000 // For really zoomed out levels, &gt; 8<br />}<br />Either a full mapping can be passed in or a partial mapping and it will be<br />rolled into the existing mapping.</p> </div>
           <pre><code class="language-javascript">Cluster.prototype.setClusterZoomMapping = function ( mapping ) {
-  if ( mapping ) {
-    this.config.clusterMapping = mapping;
+  if ( mapping &amp;&amp; Object.keys( mapping ).length ) {
+    Object.keys( mapping ).forEach( ( function ( level ) {
+      this.config.clusterMapping[ level ] = mapping[ level ];
+    }).bind( this ));
   } else {
     console.error( 'Valid zoom mapping object must be passed to Cluster.setClusterZoomMapping' );
   }
@@ -699,7 +1039,23 @@
   height: null,
   options: null,
   label: null,
-  data: null
+  data: null,
+  infobox: null
+};</code></pre>
+          <section id="events">
+            <h1>events</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-success radius ctx-type">property</div><span>Cluster.prototype.events</span>
+            </p>
+          </section>
+          <div class="description"><p>Internal registry for event handlers.  These are passed on to Cluster<br />Marker objects as they are created.</p> </div>
+          <pre><code class="language-javascript">Cluster.prototype.events = {
+  beforeCreate: null,
+  render: null,
+  mouseenter: null,
+  mouseleave: null,
+  click: null
 };</code></pre>
           <section id="errors">
             <h1>errors</h1>
@@ -710,12 +1066,9 @@
           </section>
           <div class="description"><p>Error handling.</p> </div>
           <pre><code class="language-javascript">Cluster.prototype.errors = {
-  init: function ( markers ) {
+  init: function () {
     if ( ! google.maps.geometry ) {
       console.error( 'Geometry library for Google Maps API not loaded.  Clustering will not be available.  Example include URL: //maps.googleapis.com/maps/api/js?key=key&amp;sensor=false&amp;libraries=geometry' );
-    }
-    if ( ! markers || ! markers.length ) {
-      console.error( 'Valid array of Marker objects must be passed to Cluster object' );
     }
   },
   group: function ( markers, distance ) {

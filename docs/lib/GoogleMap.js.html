@@ -106,6 +106,8 @@
               </li>
               <li><a href="#center"><i class="alert alert-info"></i><span>center</span></a>
               </li>
+              <li><a href="#zoom"><i class="alert alert-info"></i><span>zoom</span></a>
+              </li>
               <li><a href="#closeInfoboxes"><i class="alert alert-info"></i><span>closeInfoboxes</span></a>
               </li>
               <li><a href="#fitBounds"><i class="alert alert-info"></i><span>fitBounds</span></a>
@@ -115,6 +117,14 @@
               <li><a href="#bindInternalEvents"><i class="alert alert-info"></i><span>bindInternalEvents</span></a>
               </li>
               <li><a href="#compile"><i class="alert alert-info"></i><span>compile</span></a>
+              </li>
+              <li><a href="#hasMarkers"><i class="alert alert-info"></i><span>hasMarkers</span></a>
+              </li>
+              <li><a href="#hasClusters"><i class="alert alert-info"></i><span>hasClusters</span></a>
+              </li>
+              <li><a href="#hasOverlays"><i class="alert alert-info"></i><span>hasOverlays</span></a>
+              </li>
+              <li><a href="#isLoaded"><i class="alert alert-info"></i><span>isLoaded</span></a>
               </li>
               <li><a href="#config"><i class="alert alert-success"></i><span>config</span></a>
               </li>
@@ -217,7 +227,7 @@
             <h1>getMap</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.getMap()</span> -><span>Object</span>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.getMap()</span>
             </p>
           </section>
           <div class="description"><p>Retrieve the physical google map object.  Useful if you really want to get<br />your hands dirty.</p> </div>
@@ -250,20 +260,18 @@
           <div class="description"><p>Add constructed Marker object(s) to the Map.</p> </div>
           <pre><code class="language-javascript">GoogleMap.prototype.addMarkers = function ( markers ) {
   if ( markers ) {
+    if ( ! ( markers instanceof Array ) ) { markers = [ markers ]; }
+
     if ( markers.length ) {
-      markers.forEach( (function ( marker ) {
+      markers.forEach( ( function ( marker ) {
         // Add to physical map
         marker.addToMap( this );
 
-        // And update bookkeeping
-        this.state.markers.push( marker );
+        // And update bookkeeping if necessary
+        if ( this.state.markers.indexOf( marker ) === -1 ) {
+          this.state.markers.push( marker );
+        }
       }).bind( this ));
-    } else {
-      // Add to physical map
-      markers.addToMap( this );
-
-      // And update bookkeeping
-      this.state.markers.push( markers );
     }
   } else {
     console.error( 'Invalid Marker object/array passed to GoogleMap.addMarkers' );
@@ -315,13 +323,13 @@
           </table>
           <div class="description"><p>Remove marker(s) from the map as well as the internal list of Markers.<br />clearMarkers should be called instead if the intentional is to erase<br />all markers at once.</p> </div>
           <pre><code class="language-javascript">GoogleMap.prototype.removeMarkers = function ( markers ) {
-  if ( markers &amp;&amp; markers.length ) {
+  if ( markers ) {
+    if ( ! ( markers instanceof Array ) ) { markers = [ markers ]; }
+
     if ( markers.length ) {
       markers.forEach( (function ( marker ) {
         this.removeMarker( marker );
       }).bind( this ));
-    } else {
-      this.removeMarker( markers );
     }
   } else {
     console.error( 'Invalid array of Markers passed to GoogleMap.removeMarkers' );
@@ -331,7 +339,7 @@
             <h1>removeMarker</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.removeMarker()</span> -><span>Boolean</span>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.removeMarker()</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -351,7 +359,7 @@
               <tr>
                 <td>return</td>
                 <td>Boolean</td>
-                <td></td>
+                <td><p>Returns true/false on successful marker removal</p></td>
               </tr>
             </tbody>
           </table>
@@ -383,7 +391,7 @@
             <h1>getMarkers</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.getMarkers()</span> -><span>Array</span>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.getMarkers()</span>
             </p>
           </section>
           <div class="description"><p>Get all markers currently in the GoogleMap objects (note this doesn&#39;t mean<br />they are all being actively displayed).</p> </div>
@@ -471,6 +479,11 @@
                 <td>Object</td>
                 <td><p>Object of additional properties (optional)</p></td>
               </tr>
+              <tr>
+                <td>return</td>
+                <td>Object</td>
+                <td><p>Returns the created map overlay object</p></td>
+              </tr>
             </tbody>
           </table>
           <div class="description"><p>Add a polygon overlay to the map based on passed points.  Takes default<br />arguments for stroke and fill or custom args can also be rolled in.</p> </div>
@@ -508,9 +521,13 @@
 
     // Save internal reference to the overlay
     this.state.overlays.push( overlay );
+
+    return overlay;
   } else {
     console.error( 'Array of lat/lng objects must be passed to GoogleMap.addPolygonOverlay' );
   }
+
+  return null;
 };</code></pre>
           <section id="addGroundOverlay">
             <h1>addGroundOverlay</h1>
@@ -558,6 +575,11 @@
                 <td>Float</td>
                 <td><p>Overlay opacity (optional)</p></td>
               </tr>
+              <tr>
+                <td>return</td>
+                <td>Object</td>
+                <td><p>Returns the created map overlay object</p></td>
+              </tr>
             </tbody>
           </table>
           <div class="description"><p>Add ground overlay image.  This is centered by lat/lng and positioned<br />based on desired width and height of coverage in meters (i.e. a geometric<br />square on the ground).  Requires the Geometry library.</p> </div>
@@ -580,9 +602,13 @@
 
     // Save internal reference to the overlay
     this.state.overlays.push( overlay );
+
+    return overlay;
   } else {
     this.errors.groundOverlay( imageUrl, centerLat, centerLng, width, height );
   }
+
+  return null;
 };</code></pre>
           <section id="center">
             <h1>center</h1>
@@ -621,12 +647,47 @@
           <pre><code class="language-javascript">GoogleMap.prototype.center = function ( lat, lng, pan ) {
   pan = pan || false;
 
-  if ( pan ) {
-    this.state.map.panTo( new google.maps.LatLng( lat, lng ) );
+  if ( lat &amp;&amp; lng &amp;&amp; this.state.map ) {
+    if ( pan ) {
+      this.state.map.panTo( new google.maps.LatLng( lat, lng ) );
+    } else {
+      this.state.map.setCenter( new google.maps.LatLng( lat, lng ) );
+    }
   } else {
-    this.state.map.setCenter( new google.maps.LatLng( lat, lng ) );
+    this.errors.center( lat, lng );
   }
 };</code></pre>
+          <section id="zoom">
+            <h1>zoom</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.zoom()</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>zoom</td>
+                <td>Integer</td>
+                <td><p>Zoom level. Valid values are 0 (all the way out) to 21 (all the way in)</p></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Zoom the map.</p> </div>
+          <pre><code class="language-javascript">GoogleMap.prototype.zoom = function ( zoom ) {
+  if ( this.state.map &amp;&amp; zoom &amp;&amp; zoom &gt;= 0 &amp;&amp; zoom &lt;= 22 ) {
+    this.state.map.setZoom( zoom );
+  } else {
+    this.errors.zoom( zoom );
+  }
+}</code></pre>
           <section id="closeInfoboxes">
             <h1>closeInfoboxes</h1>
             <h5 class="subheader"></h5>
@@ -670,16 +731,26 @@
   markers = markers || this.state.markers;
 
   if ( markers &amp;&amp; markers.length ) {
-    // Set dirty flag while fitting bounds so zoom events
-    // don't fire
-    this.state.fittingBounds = true;
-
-    var bounds = new google.maps.LatLngBounds();
-    markers.forEach( function ( marker ) {
-      bounds.extend( marker.state.marker.getPosition() );
+    // First get the set of visible markers - no sense fitting bounds to a set
+    // of invisible markers
+    var visibleMarkers = markers.filter( function ( marker ) {
+      return marker.isVisible();
     });
 
-    this.state.map.fitBounds( bounds );
+    if ( visibleMarkers.length ) {
+      // Set dirty flag while fitting bounds so zoom events
+      // don't fire
+      this.state.fittingBounds = true;
+
+      var bounds = new google.maps.LatLngBounds();
+      markers.forEach( function ( marker ) {
+        if ( marker.isVisible() ) {
+          bounds.extend( marker.state.marker.getPosition() );
+        }
+      });
+
+      this.state.map.fitBounds( bounds );
+    }
   }
 };</code></pre>
           <section id="addEvent">
@@ -741,7 +812,7 @@
             <h1>compile</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.compile()</span> -><span>Object</span>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.compile()</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -766,7 +837,7 @@
               <tr>
                 <td>return</td>
                 <td>Object</td>
-                <td></td>
+                <td><p>Returns compiled markup, ready for use</p></td>
               </tr>
             </tbody>
           </table>
@@ -781,6 +852,58 @@
   } else {
     this.errors.compile( content );
   }
+};</code></pre>
+          <section id="hasMarkers">
+            <h1>hasMarkers</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.hasMarkers()</span>
+            </p>
+          </section>
+          <div class="description"><p>Returns true if map currently has Markers assigned to it.</p> </div>
+          <pre><code class="language-javascript">GoogleMap.prototype.hasMarkers = function () {
+  return ( this.state.markers &amp;&amp; this.state.markers.length )
+    ? true
+    : false;
+};</code></pre>
+          <section id="hasClusters">
+            <h1>hasClusters</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.hasClusters()</span>
+            </p>
+          </section>
+          <div class="description"><p>Returns true if map currently has Clusters assigned to it.</p> </div>
+          <pre><code class="language-javascript">GoogleMap.prototype.hasClusters = function () {
+  return ( this.state.clusters &amp;&amp; this.state.clusters.length )
+    ? true
+    : false;
+};</code></pre>
+          <section id="hasOverlays">
+            <h1>hasOverlays</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.hasOverlays()</span>
+            </p>
+          </section>
+          <div class="description"><p>Returns true if map currently has overlays assigned to it.</p> </div>
+          <pre><code class="language-javascript">GoogleMap.prototype.hasOverlays = function () {
+  return ( this.state.overlays &amp;&amp; this.state.overlays.length )
+    ? true
+    : false;
+};</code></pre>
+          <section id="isLoaded">
+            <h1>isLoaded</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>GoogleMap.prototype.isLoaded()</span>
+            </p>
+          </section>
+          <div class="description"><p>Returns true if map is loaded (has a google map object).</p> </div>
+          <pre><code class="language-javascript">GoogleMap.prototype.isLoaded = function () {
+  return this.state.map
+    ? true
+    : false;
 };</code></pre>
           <section id="config">
             <h1>config</h1>
@@ -864,6 +987,25 @@
     }
     if ( ! width || ! height ) {
       console.error( 'Valid width height in meters must be passed to GoogleMap.addGroundOverlay' );
+    }
+  },
+  center: function ( lat, lng ) {
+    if ( ! this.state.map ) {
+      console.error( 'Google Map must be active before attempting to center the map' );
+    }
+    if ( ! lat || ! lng ) {
+      console.error( 'Valid lat/lng must be passed to center map' );
+    }
+  },
+  zoom: function ( zoom ) {
+    if ( ! this.state.map ) {
+      console.error( 'Google Map must be active before attempting to zoom the map' );
+    }
+    if ( ! zoom ) {
+      console.error( 'Valid zoom must be passed to zoom the map' );
+    }
+    if ( zoom &lt; 0 || zoom &gt; 21 ) {
+      console.error( 'Passed zoom value falls outside of acceptable zoom range (0 - 21)' );
     }
   }
 };</code></pre>
