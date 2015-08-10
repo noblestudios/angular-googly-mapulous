@@ -44,7 +44,7 @@ angular.module( 'googlyMapulous' ).directive( 'googleMap', [ 'googleMaps', funct
       function initMap () {
         // Build the map and save a reference to the created map object in the
         // $scope for reference later from controller
-        $scope.googleMap = new googleMaps.GoogleMap( $element.find( '.google-map' )[0], $scope, $compile, options );
+        $scope.googleMap = new googleMaps.GoogleMap( $element[ 0 ].children[ 0 ].children[ 0 ], $scope, $compile, options );
 
         // Fire event at the point so the outer control knows we're done
         $scope.$emit( 'googleMapLoaded', $scope.googleMap );
